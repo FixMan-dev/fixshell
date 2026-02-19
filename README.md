@@ -35,21 +35,69 @@ FixShell acts as a smart wrapper around your terminal commands:
 
 ---
 
-## 📦 Installation
+## 📦 Installation Guide
 
-FixShell is a Python-based tool and works on any Linux distribution (Ubuntu, Fedora, Arch, Kali, Debian, etc.).
+FixShell is a Python tool. To avoid messing up your system python, we strongly recommend using **pipx** (which creates isolated environments for CLI tools).
 
-### Option 1: Install via pip (Universal)
-The easiest way to install for your user:
+### 1️⃣ Install pipx (If you don't have it)
+
+Choose your distribution below:
+
+<details open>
+<summary><strong>🦁 Ubuntu / Debian / Kali / Mint</strong></summary>
+
 ```bash
-pip install fixshell
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
 ```
+*Restart your terminal after running this.*
+</details>
 
-### Option 2: Install via pipx (Recommended)
-If you use `pipx` to manage CLI tools (keeps your system environment clean):
+<details>
+<summary><strong>🎩 Fedora / RHEL / CentOS</strong></summary>
+
+```bash
+sudo dnf install pipx
+pipx ensurepath
+```
+</details>
+
+<details>
+<summary><strong>🏹 Arch Linux / Manjaro</strong></summary>
+
+```bash
+sudo pacman -S python-pipx
+pipx ensurepath
+```
+</details>
+
+<details>
+<summary><strong>🍎 macOS (Homebrew)</strong></summary>
+
+```bash
+brew install pipx
+pipx ensurepath
+```
+</details>
+
+---
+
+### 2️⃣ Install FixShell
+
+Once `pipx` is set up, install FixShell with one command:
+
 ```bash
 pipx install fixshell
 ```
+
+### 3️⃣ (Alternative) Standard pip Install
+If you prefer standard pip (without isolation):
+
+```bash
+pip install fixshell
+```
+*Note: On some modern distros (Ubuntu 24.04+), this might be blocked to protect system packages. Use pipx instead.*
 
 ### � Prerequisites: The AI Brain (Ollama)
 FixShell provides the *logic*, but **Ollama** provides the *intelligence*. You must have Ollama running locally.
