@@ -73,6 +73,59 @@ class DockerMode:
         elif choice == 7:
             self._stop_container()
 
+    def _handle_docker_port_conflict(self, port_host):
+        """Recovery decision tree for port conflicts."""
+        while True:
+            click.secho(f"\n⚠ Port {port_host} is already in use.", fg="yellow")
+            click.echo("Choose how to proceed:")
+            click.echo("1. Specify a different host port")
+            click.echo("2. Automatic rename (increment port)")
+            click.echo("3. Cancel")
+            
+            choice = click.prompt("Select an option", type=int, default=1)
+            if choice == 1:
+                new_port = click.prompt("Enter new host port", type=int)
+                if is_port_free(new_port): return new_port
+                port_host = new_port
+            elif choice == 2:
+                new_port = port_host + 1
+                while not is_port_free(new_port):
+                    new_port += 1
+                click.secho(f"✔ Found free port: {new_port}", fg="green")
+                return new_port
+            else:
+                return None
+
+    def _handle_docker_container_conflict(self, name):
+        """Recovery decision tree for container name conflicts."""
+        while True:
+            click.secho(f"\n⚠ Container named '{name}' already exists.", fg="yellow")
+            click.echo("Choose how to proceed:")
+            click.echo("1. Use a different name")
+            click.echo("2. Force remove existing container and recreate (Destructive)")
+            click.echo("3. Rename automatically (append -1, -2, etc.)")
+            click.echo("4. Cancel")
+            
+            choice = click.prompt("Select an option", type=int, default=1)
+            if choice == 1:
+                name = click.prompt("Enter new container name")
+                if not container_exists(name): return name
+            elif choice == 2:
+                if click.confirm(click.style(f"Force remove '{name}'?", fg="red")):
+                    if not self.dry_run:
+                        import subprocess
+                        subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+                    return name
+            elif choice == 3:
+                counter = 1
+                while container_exists(f"{name}-{counter}"):
+                    counter += 1
+                new_name = f"{name}-{counter}"
+                click.secho(f"✔ Using name: {new_name}", fg="green")
+                return new_name
+            else:
+                return None
+
     def _run_predefined_template(self, template_key):
         template = DOCKER_TEMPLATES[template_key]
         click.secho(f"\n--- {template['name']} ---", fg="cyan")
@@ -83,14 +136,18 @@ class DockerMode:
         env_vars = click.prompt("Environment variables (KEY=VAL, separated by comma)", default="", show_default=False)
         volumes = click.prompt("Volume mapping (Host:Container, optional)", default="", show_default=False)
         
-        # Validate Inputs
+        # Recovery Loop for Port
         port_host = int(port.split(':')[0])
+        port_container = port.split(':')[1]
         if not is_port_free(port_host):
-            click.secho(f"❌ Port {port_host} is already in use!", fg="red")
-            return
+            port_host = self._handle_docker_port_conflict(port_host)
+            if not port_host: return
+            port = f"{port_host}:{port_container}"
+
+        # Recovery Loop for Container Name
         if container_exists(c_name):
-            click.secho(f"❌ Container named '{c_name}' already exists!", fg="red")
-            return
+            c_name = self._handle_docker_container_conflict(c_name)
+            if not c_name: return
 
         # Execution
         click.secho("\n[3] Executing Workflow...", fg="yellow")

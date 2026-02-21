@@ -71,24 +71,73 @@ class GitMode:
             if not ok: all_pass = False
         return all_pass
 
+    def _handle_directory_conflict(self, path):
+        """Recovery Decision Tree for directory conflicts."""
+        while True:
+            click.secho(f"\n⚠ Directory '{os.path.basename(path)}' already exists.", fg="yellow")
+            click.echo("Choose how to proceed:")
+            click.echo("1. Use this existing directory (as-is)")
+            click.echo("2. Clear directory contents and continue (Destructive)")
+            click.echo("3. Choose a different directory name")
+            click.echo("4. Rename automatically (append -1, -2, etc.)")
+            click.echo("5. Cancel")
+            
+            choice = click.prompt("Select an option", type=int, default=3)
+            
+            if choice == 1:
+                return path
+            elif choice == 2:
+                if click.confirm(click.style("Are you sure you want to DELETE all files in this directory?", fg="red", bold=True)):
+                    if not self.dry_run:
+                        import shutil
+                        for filename in os.listdir(path):
+                            file_path = os.path.join(path, filename)
+                            try:
+                                if os.path.isfile(file_path) or os.path.islink(file_path):
+                                    os.unlink(file_path)
+                                elif os.path.isdir(file_path) and not filename == ".git":
+                                    shutil.rmtree(file_path)
+                            except Exception as e:
+                                click.secho(f"  Error clearing {filename}: {e}", fg="red")
+                    click.secho("✔ Directory cleared.", fg="green")
+                    return path
+            elif choice == 3:
+                new_name = click.prompt("Enter new directory name")
+                new_path = os.path.join(os.path.dirname(path), new_name)
+                if not os.path.exists(new_path):
+                    if not self.dry_run: os.makedirs(new_path)
+                    return new_path
+                path = new_path # Loop again
+            elif choice == 4:
+                counter = 1
+                base = path
+                while os.path.exists(f"{base}-{counter}"):
+                    counter += 1
+                new_path = f"{base}-{counter}"
+                if not self.dry_run: os.makedirs(new_path)
+                click.secho(f"✔ Created automatic directory: {os.path.basename(new_path)}", fg="green")
+                return new_path
+            else:
+                return None
+
     def start_new_project(self):
         if not self._validate_env(): return
         
         target_dir = os.getcwd()
         if GitValidator.is_git_repo():
             click.secho("\n❌ Current directory is already a Git repository!", fg="red")
-            if click.confirm(click.style("Would you like to create a NEW directory for this project?", fg="cyan"), default=True):
-                new_name = click.prompt("Enter new directory name")
-                target_dir = os.path.join(os.getcwd(), new_name)
-                try:
-                    if not self.dry_run:
-                        os.makedirs(target_dir, exist_ok=False)
-                    click.secho(f"✔ Created directory: {target_dir}", fg="green")
-                except FileExistsError:
-                    click.secho(f"❌ Directory '{new_name}' already exists and is not empty.", fg="red")
-                    return
+            if click.confirm(click.style("Would you like to setup this project in a DIFFERENT directory?", fg="cyan"), default=True):
+                target_dir = os.path.join(os.getcwd(), click.prompt("Enter directory name"))
+                if os.path.exists(target_dir) and os.listdir(target_dir):
+                    target_dir = self._handle_directory_conflict(target_dir)
+                    if not target_dir: return # Cancelled
+                elif not os.path.exists(target_dir):
+                    if not self.dry_run: os.makedirs(target_dir)
             else:
-                return
+                # User wants to stay here even if it is a repo? 
+                # This is usually a bad idea for "start new project"
+                if not click.confirm(click.style("Proceed anyway in this existing Git repo?", fg="yellow")):
+                    return
 
         # Change to target directory for the execution
         original_dir = os.getcwd()
@@ -147,10 +196,34 @@ class GitMode:
         if not GitValidator.validate_url(url):
             click.secho("❌ Invalid URL format.", fg="red")
             return
+            
         
         self.executor.execute_workflow([
             {"desc": f"Cloning {url}", "cmd": ["git", "clone", url]}
         ], "Clone Repository")
+
+    def _handle_detached_head(self):
+        """Recovery decision tree for Detached HEAD."""
+        while True:
+            click.secho("\n⚠ Detached HEAD detected. You are not on a branch!", fg="yellow")
+            click.echo("Choose how to proceed:")
+            click.echo("1. Create a new branch at this point (Save your work)")
+            click.echo("2. Switch back to 'main' (WARNING: You may lose uncommitted work)")
+            click.echo("3. Cancel")
+            
+            choice = click.prompt("Select an option", type=int, default=1)
+            if choice == 1:
+                new_branch = click.prompt("Enter new branch name")
+                if not self.dry_run:
+                    subprocess.run(["git", "checkout", "-b", new_branch])
+                return True
+            elif choice == 2:
+                if click.confirm(click.style("Switch to 'main' and potentially discard progress?", fg="red")):
+                    if not self.dry_run:
+                        subprocess.run(["git", "checkout", "main"])
+                    return True
+            else:
+                return False
 
     def daily_work(self):
         if not GitValidator.is_git_repo():
@@ -161,8 +234,7 @@ class GitMode:
             return
         
         if GitValidator.is_detached_head():
-            click.secho("❌ Detached HEAD detected. Please switch to a branch.", fg="red")
-            return
+            if not self._handle_detached_head(): return
 
         if GitValidator.is_merge_in_progress():
             click.secho("❌ Merge in progress. Resolve conflicts first.", fg="red")
@@ -179,24 +251,53 @@ class GitMode:
         
         self.executor.execute_workflow(steps, "Daily Work")
 
+    def _handle_branch_conflict(self, branch):
+        """Recovery Decision Tree for branch conflicts."""
+        while True:
+            click.secho(f"\n⚠ Branch '{branch}' already exists.", fg="yellow")
+            click.echo("Choose how to proceed:")
+            click.echo("1. Switch to the existing branch")
+            click.echo("2. Reset branch (Delete and recreate - Destructive)")
+            click.echo("3. Choose a different branch name")
+            click.echo("4. Cancel")
+            
+            choice = click.prompt("Select an option", type=int, default=3)
+            if choice == 1: return ("switch", branch)
+            if choice == 2:
+                if click.confirm(click.style(f"Permanently delete branch '{branch}'?", fg="red")):
+                    if not self.dry_run: subprocess.run(["git", "branch", "-D", branch])
+                    return ("create", branch)
+            if choice == 3:
+                branch = click.prompt("Enter new branch name")
+                if not GitValidator.branch_exists(branch): return ("create", branch)
+            if choice == 4: return (None, None)
+
     def create_feature_branch(self):
         branch = click.prompt("New feature branch name")
         if not GitValidator.validate_branch_name(branch):
             click.secho("❌ Invalid branch name.", fg="red")
             return
         
+        target_action = "create"
         if GitValidator.branch_exists(branch):
-            click.secho(f"❌ Branch '{branch}' already exists.", fg="red")
-            return
+            target_action, branch = self._handle_branch_conflict(branch)
+            if not target_action: return
 
         if not GitValidator.is_working_dir_clean():
             click.secho("❌ Working directory not clean. Commit or stash changes first.", fg="red")
             return
 
-        steps = [
-            {"desc": f"Creating branch {branch}", "cmd": ["git", "checkout", "-b", branch]},
-            {"desc": "Setting upstream", "cmd": ["git", "push", "-u", "origin", branch]}
-        ]
+        if target_action == "create":
+            steps = [
+                {"desc": f"Creating branch {branch}", "cmd": ["git", "checkout", "-b", branch]},
+                {"desc": "Setting upstream", "cmd": ["git", "push", "-u", "origin", branch]}
+            ]
+        else: # switch
+            steps = [
+                {"desc": f"Switching to existing branch {branch}", "cmd": ["git", "checkout", branch]},
+                {"desc": "Syncing with origin", "cmd": ["git", "pull", "origin", branch]}
+            ]
+            
         self.executor.execute_workflow(steps, "Create Feature Branch")
 
     def sync_with_main(self):
