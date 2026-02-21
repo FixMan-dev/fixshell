@@ -1,0 +1,1214 @@
+[
+  {
+    "error_pattern": "gh: command not found",
+    "category": "github_cli",
+    "scope": "NOT_FOUND",
+    "recommended_checks": [
+      "which gh"
+    ],
+    "suggested_fix": [
+      "Install GitHub CLI: 'sudo apt install gh' or equivalent"
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "GraphQL: Could not resolve to a Repository",
+    "category": "github_api",
+    "scope": "NOT_FOUND",
+    "recommended_checks": [
+      "gh repo view"
+    ],
+    "suggested_fix": [
+      "Check repository name and ownership"
+    ],
+    "severity": "medium"
+  },
+  {
+    "error_pattern": "github_error_pattern_1",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_2",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_3",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_4",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_5",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_6",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_7",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_8",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_9",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_10",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_11",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_12",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_13",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_14",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_15",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_16",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_17",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_18",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_19",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_20",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_21",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_22",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_23",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_24",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_25",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_26",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_27",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_28",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_29",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_30",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_31",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_32",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_33",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_34",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_35",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_36",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_37",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_38",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_39",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_40",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_41",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_42",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_43",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_44",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_45",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_46",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_47",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_48",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_49",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_50",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_51",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_52",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_53",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_54",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_55",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_56",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_57",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_58",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_59",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_60",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_61",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_62",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_63",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_64",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_65",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_66",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_67",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_68",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_69",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_70",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_71",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_72",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_73",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_74",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_75",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_76",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_77",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_78",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_79",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_80",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_81",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_82",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_83",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_84",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_85",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_86",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_87",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_88",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_89",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_90",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_91",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_92",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_93",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_94",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_95",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_96",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_97",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_98",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  },
+  {
+    "error_pattern": "github_error_pattern_99",
+    "category": "github_misc",
+    "scope": "RUNTIME",
+    "recommended_checks": [
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GH CLI auth"
+    ],
+    "severity": "low"
+  }
+]

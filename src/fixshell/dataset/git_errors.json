@@ -1,0 +1,106 @@
+[
+  {
+    "error_pattern": "There is no tracking information for the current branch",
+    "category": "git_upstream",
+    "scope": "CONFIG",
+    "recommended_checks": [
+      "git remote -v",
+      "git branch -a"
+    ],
+    "suggested_fix": [
+      "Set upstream tracking: 'git branch --set-upstream-to=origin/main'"
+    ],
+    "fix_commands": [
+      [
+        "git",
+        "branch",
+        "--set-upstream-to=origin/main"
+      ]
+    ],
+    "severity": "medium"
+  },
+  {
+    "error_pattern": "fatal: not a git repository",
+    "category": "git_init",
+    "scope": "NOT_FOUND",
+    "recommended_checks": [
+      "ls -a"
+    ],
+    "suggested_fix": [
+      "Run 'git init' in the directory"
+    ],
+    "fix_commands": [
+      [
+        "git",
+        "init"
+      ]
+    ],
+    "severity": "medium"
+  },
+  {
+    "error_pattern": "Your local changes to the following files would be overwritten by merge",
+    "category": "git_pull_conflict",
+    "scope": "CONFLICT",
+    "recommended_checks": [
+      "git status"
+    ],
+    "suggested_fix": [
+      "Stash changes before pull: 'git stash'",
+      "Commit changes before pull"
+    ],
+    "fix_commands": [
+      [
+        "git",
+        "stash"
+      ]
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "remote: Repository not found",
+    "category": "git_remote",
+    "scope": "AUTH",
+    "recommended_checks": [
+      "git remote -v",
+      "gh auth status"
+    ],
+    "suggested_fix": [
+      "Verify GitHub authentication with 'gh auth login'"
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "rejected .* (non-fast-forward)",
+    "category": "git_push",
+    "scope": "CONFLICT",
+    "recommended_checks": [
+      "git fetch",
+      "git log ..origin/main"
+    ],
+    "suggested_fix": [
+      "Run 'git pull --rebase origin main'"
+    ],
+    "fix_commands": [
+      [
+        "git",
+        "pull",
+        "--rebase",
+        "origin",
+        "main"
+      ]
+    ],
+    "severity": "medium"
+  },
+  {
+    "error_pattern": "CONFLICT (content): Merge conflict in",
+    "category": "git_conflict",
+    "scope": "MERGE",
+    "recommended_checks": [
+      "git status"
+    ],
+    "suggested_fix": [
+      "Resolve markers manually, then 'git add' and 'git commit'"
+    ],
+    "severity": "high"
+  }
+]

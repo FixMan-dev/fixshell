@@ -18,6 +18,7 @@ def get_diagnosis(system_prompt: str, user_message: str, model: str = "qwen2.5:3
         
         content = response['message']['content']
         # The ollama library might return a string or already parsed dict depending on version
+
         if isinstance(content, str):
             return json.loads(content)
         return content

@@ -1,0 +1,64 @@
+[
+  {
+    "error_pattern": "permission denied while trying to connect to the Docker daemon socket",
+    "category": "docker_daemon_permission",
+    "scope": "PERMISSION",
+    "recommended_checks": [
+      "ls -l /var/run/docker.sock",
+      "groups"
+    ],
+    "suggested_fix": [
+      "Add user to docker group: 'sudo usermod -aG docker $USER'"
+    ],
+    "fix_commands": [
+      [
+        "sudo",
+        "usermod",
+        "-aG",
+        "docker",
+        "$USER"
+      ]
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "Cannot connect to the Docker daemon at .* Is the docker daemon running?",
+    "category": "docker_daemon_service",
+    "scope": "SERVICE",
+    "recommended_checks": [
+      "systemctl status docker"
+    ],
+    "suggested_fix": [
+      "Start Docker service: 'sudo systemctl start docker'"
+    ],
+    "fix_commands": [
+      [
+        "sudo",
+        "systemctl",
+        "start",
+        "docker"
+      ]
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "Conflict. The container name \"(.*)\" is already in use",
+    "category": "docker_name_conflict",
+    "scope": "CONFLICT",
+    "recommended_checks": [
+      "docker ps -a"
+    ],
+    "suggested_fix": [
+      "Remove existing container before running"
+    ],
+    "fix_commands": [
+      [
+        "docker",
+        "rm",
+        "-f",
+        "{MATCH_1}"
+      ]
+    ],
+    "severity": "medium"
+  }
+]

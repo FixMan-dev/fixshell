@@ -54,4 +54,20 @@ def check_deterministic(cmd_list: List[str], stderr: str, smart_context: Dict[st
                 }]
             }
 
+    # 4. Permission Denied -> Suggest Sudo
+    if "permission denied" in stderr_lower:
+        import os
+        if os.geteuid() != 0:
+             return {
+                "possible_causes": [{
+                    "cause": "DeterministicPermissionDenied",
+                    "explanation": "You do not have sufficient privileges to access this resource.",
+                    "suggested_commands": [
+                        {"cmd": f"sudo {' '.join(cmd_list)}", "risk": "medium", "rationale": "Run with elevated privileges."},
+                        {"cmd": "whoami", "risk": "low", "rationale": "Check current user."}
+                    ],
+                    "initial_confidence": 1.0
+                }]
+            }
+
     return None
