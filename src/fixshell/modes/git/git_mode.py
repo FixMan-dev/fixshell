@@ -74,45 +74,67 @@ class GitMode:
     def start_new_project(self):
         if not self._validate_env(): return
         
+        target_dir = os.getcwd()
         if GitValidator.is_git_repo():
-            click.secho("❌ Current directory is already a Git repository!", fg="red")
-            return
+            click.secho("\n❌ Current directory is already a Git repository!", fg="red")
+            if click.confirm(click.style("Would you like to create a NEW directory for this project?", fg="cyan"), default=True):
+                new_name = click.prompt("Enter new directory name")
+                target_dir = os.path.join(os.getcwd(), new_name)
+                try:
+                    if not self.dry_run:
+                        os.makedirs(target_dir, exist_ok=False)
+                    click.secho(f"✔ Created directory: {target_dir}", fg="green")
+                except FileExistsError:
+                    click.secho(f"❌ Directory '{new_name}' already exists and is not empty.", fg="red")
+                    return
+            else:
+                return
 
-        name = click.prompt("Repository name", default=os.path.basename(os.getcwd()))
-        visibility = "--private" if click.confirm("Make it private?", default=True) else "--public"
-        init_readme = click.confirm("Initialize README.md?", default=True)
-        gitignore = click.prompt("Add .gitignore template?", type=click.Choice(['python', 'node', 'none']), default='none')
-        ci = click.prompt("Add CI template?", type=click.Choice(['python', 'node', 'none']), default='none')
+        # Change to target directory for the execution
+        original_dir = os.getcwd()
+        if not self.dry_run:
+            os.chdir(target_dir)
 
-        steps = [
-            {"desc": "Initializing local git", "cmd": ["git", "init"]},
-        ]
-        
-        if init_readme:
-            steps.append({"desc": "Creating README.md", "action": lambda: self._write_file("README.md", f"# {name}\n")})
-        
-        if gitignore != 'none':
-            steps.append({"desc": f"Creating .gitignore ({gitignore})", "action": lambda: self._write_file(".gitignore", GITIGNORE_CONTENT[gitignore])})
+        try:
+            name = click.prompt("Repository name", default=os.path.basename(target_dir))
+            visibility = "--private" if click.confirm("Make it private?", default=True) else "--public"
+            init_readme = click.confirm("Initialize README.md?", default=True)
+            gitignore = click.prompt("Add .gitignore template?", type=click.Choice(['python', 'node', 'none']), default='none')
+            ci = click.prompt("Add CI template?", type=click.Choice(['python', 'node', 'none']), default='none')
 
-        steps.extend([
-            {"desc": "Adding files", "cmd": ["git", "add", "."]},
-            {"desc": "Initial commit", "cmd": ["git", "commit", "-m", "Initial commit"]},
-            {"desc": "Creating GitHub repo", "cmd": ["gh", "repo", "create", name, visibility, "--source=.", "--remote=origin"]},
-            {"desc": "Setting main branch", "cmd": ["git", "branch", "-M", "main"]},
-            {"desc": "Pushing to GitHub", "cmd": ["git", "push", "-u", "origin", "main"]}
-        ])
+            steps = [
+                {"desc": "Initializing local git", "cmd": ["git", "init"]},
+            ]
+            
+            if init_readme:
+                steps.append({"desc": "Creating README.md", "action": lambda: self._write_file("README.md", f"# {name}\n")})
+            
+            if gitignore != 'none':
+                steps.append({"desc": f"Creating .gitignore ({gitignore})", "action": lambda: self._write_file(".gitignore", GITIGNORE_CONTENT[gitignore])})
 
-        if ci != 'none':
-            def add_ci():
-                os.makedirs(".github/workflows", exist_ok=True)
-                self._write_file(f".github/workflows/{ci}-ci.yml", CI_TEMPLATES[ci])
-                subprocess.run(["git", "add", ".github/workflows/"])
-                subprocess.run(["git", "commit", "-m", f"Add {ci} CI workflow"])
-                subprocess.run(["git", "push"])
-                return True
-            steps.append({"desc": f"Adding CI template ({ci})", "action": add_ci})
+            steps.extend([
+                {"desc": "Adding files", "cmd": ["git", "add", "."]},
+                {"desc": "Initial commit", "cmd": ["git", "commit", "-m", "Initial commit"]},
+                {"desc": "Creating GitHub repo", "cmd": ["gh", "repo", "create", name, visibility, "--source=.", "--remote=origin"]},
+                {"desc": "Setting main branch", "cmd": ["git", "branch", "-M", "main"]},
+                {"desc": "Pushing to GitHub", "cmd": ["git", "push", "-u", "origin", "main"]}
+            ])
 
-        self.executor.execute_workflow(steps, "Start New Project")
+            if ci != 'none':
+                def add_ci():
+                    os.makedirs(".github/workflows", exist_ok=True)
+                    self._write_file(f".github/workflows/{ci}-ci.yml", CI_TEMPLATES[ci])
+                    subprocess.run(["git", "add", ".github/workflows/"])
+                    subprocess.run(["git", "commit", "-m", f"Add {ci} CI workflow"])
+                    subprocess.run(["git", "push"])
+                    return True
+                steps.append({"desc": f"Adding CI template ({ci})", "action": add_ci})
+
+            self.executor.execute_workflow(steps, "Start New Project")
+
+        finally:
+            if not self.dry_run:
+                os.chdir(original_dir)
 
     def _write_file(self, path, content):
         if not self.dry_run:
@@ -132,7 +154,10 @@ class GitMode:
 
     def daily_work(self):
         if not GitValidator.is_git_repo():
-            click.secho("❌ Not a git repository.", fg="red")
+            click.secho("\n❌ Not a git repository.", fg="red")
+            if click.confirm(click.style("Would you like to INITIALIZE this directory as a Git repository now?", fg="cyan"), default=True):
+                self.start_new_project()
+                return
             return
         
         if GitValidator.is_detached_head():
