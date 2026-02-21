@@ -9,7 +9,8 @@ GIT_MENU = {
     "7": "Delete Branch Safely",
     "8": "Add CI Workflow",
     "9": "Show Repository Status",
-    "10": "Exit"
+    "10": "Login / Authenticate (gh)",
+    "11": "Exit"
 }
 
 GITIGNORE_CONTENT = {

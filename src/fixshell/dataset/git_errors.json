@@ -20,6 +20,26 @@
     "severity": "medium"
   },
   {
+    "error_pattern": "could not read (Username|password) for .* terminal prompts disabled",
+    "category": "git_auth",
+    "scope": "AUTH",
+    "recommended_checks": [
+      "gh auth status",
+      "git config credential.helper"
+    ],
+    "suggested_fix": [
+      "Setup GitHub CLI as credential helper: 'gh auth setup-git'"
+    ],
+    "fix_commands": [
+      [
+        "gh",
+        "auth",
+        "setup-git"
+      ]
+    ],
+    "severity": "high"
+  },
+  {
     "error_pattern": "fatal: not a git repository",
     "category": "git_init",
     "scope": "NOT_FOUND",
@@ -45,8 +65,7 @@
       "git status"
     ],
     "suggested_fix": [
-      "Stash changes before pull: 'git stash'",
-      "Commit changes before pull"
+      "Stash changes before pull: 'git stash'"
     ],
     "fix_commands": [
       [

@@ -65,7 +65,12 @@ class GitExecutor:
 
         while True:
             try:
-                result = subprocess.run(cmd_list, capture_output=True, text=True)
+                # Set environment to prevent hanging on prompts
+                env = os.environ.copy()
+                env["GIT_TERMINAL_PROMPT"] = "0"
+                env["GIT_ASKPASS"] = "true" # Forces fail if askpass needed
+                
+                result = subprocess.run(cmd_list, capture_output=True, text=True, env=env)
                 if result.returncode == 0:
                     click.secho("✔", fg="green")
                     return True

@@ -30,9 +30,9 @@ class GitMode:
             for key, val in GIT_MENU.items():
                 click.echo(f"{key}. {val}")
             
-            choice = click.prompt("\nSelect an option", type=str, default="10")
+            choice = click.prompt("\nSelect an option", type=str, default="11")
             
-            if choice == "10":
+            if choice == "11":
                 break
             elif choice == "1":
                 self.start_new_project()
@@ -52,10 +52,12 @@ class GitMode:
                 self.add_ci_workflow()
             elif choice == "9":
                 self.show_status()
+            elif choice == "10":
+                self.authenticate_gh()
             else:
                 click.secho("Invalid option.", fg="red")
             
-            if choice != "10":
+            if choice != "11":
                 input("\nPress Enter to return to menu...")
 
     def _validate_env(self):
@@ -250,3 +252,34 @@ class GitMode:
         subprocess.run(["git", "status"])
         click.secho("\n--- Recent Commits ---", fg="cyan")
         subprocess.run(["git", "log", "-n", "5", "--oneline", "--graph", "--decorate"])
+
+    def authenticate_gh(self):
+        click.secho("\n--- GitHub CLI Authentication ---", fg="magenta", bold=True)
+        click.echo("1. Login with a web browser (Default)")
+        click.echo("2. Login with an Auth Token (Paste token)")
+        
+        auth_choice = click.prompt("Select login method", type=int, default=1)
+        
+        if auth_choice == 1:
+            self.executor.execute_workflow([
+                {"desc": "Launching browser login", "cmd": ["gh", "auth", "login"]}
+            ], "GitHub Web Auth")
+        elif auth_choice == 2:
+            token = click.prompt("Paste your Personal Access Token", hide_input=True)
+            if token:
+                # Use a temporary file or pipe to safely pass the token
+                def apply_token():
+                    try:
+                        process = subprocess.Popen(["gh", "auth", "login", "--with-token"], stdin=subprocess.PIPE, text=True)
+                        process.communicate(input=token)
+                        return process.returncode == 0
+                    except Exception:
+                        return False
+                
+                self.executor.execute_workflow([
+                    {"desc": "Authenticating with token", "action": apply_token},
+                    {"desc": "Configuring git credentials", "cmd": ["gh", "auth", "setup-git"]}
+                ], "GitHub Token Auth")
+        
+        # After auth, ensure git is configured
+        subprocess.run(["gh", "auth", "setup-git"])
