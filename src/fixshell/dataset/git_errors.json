@@ -20,12 +20,26 @@
     "severity": "medium"
   },
   {
-    "error_pattern": "could not read (Username|password) for .* terminal prompts disabled",
+    "error_pattern": "Permission to .* denied to .*|The requested URL returned error: 403",
+    "category": "git_permission_denied",
+    "scope": "PERMISSION",
+    "recommended_checks": [
+      "gh auth status",
+      "check repo collaborators on GitHub"
+    ],
+    "suggested_fix": [
+      "You don't have write access to this repository.",
+      "Ask the owner for collaborator access or fork the repo."
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "could not read (Username|password)|terminal prompts disabled|Authentication failed",
     "category": "git_auth",
     "scope": "AUTH",
     "recommended_checks": [
       "gh auth status",
-      "git config credential.helper"
+      "git config --list --show-origin"
     ],
     "suggested_fix": [
       "Setup GitHub CLI as credential helper: 'gh auth setup-git'"
@@ -38,24 +52,6 @@
       ]
     ],
     "severity": "high"
-  },
-  {
-    "error_pattern": "fatal: not a git repository",
-    "category": "git_init",
-    "scope": "NOT_FOUND",
-    "recommended_checks": [
-      "ls -a"
-    ],
-    "suggested_fix": [
-      "Run 'git init' in the directory"
-    ],
-    "fix_commands": [
-      [
-        "git",
-        "init"
-      ]
-    ],
-    "severity": "medium"
   },
   {
     "error_pattern": "Your local changes to the following files would be overwritten by merge",
@@ -76,36 +72,39 @@
     "severity": "high"
   },
   {
-    "error_pattern": "remote: Repository not found",
-    "category": "git_remote",
-    "scope": "AUTH",
-    "recommended_checks": [
-      "git remote -v",
-      "gh auth status"
-    ],
-    "suggested_fix": [
-      "Verify GitHub authentication with 'gh auth login'"
-    ],
-    "severity": "high"
-  },
-  {
     "error_pattern": "rejected .* (non-fast-forward)",
-    "category": "git_push",
+    "category": "git_push_conflict",
     "scope": "CONFLICT",
     "recommended_checks": [
       "git fetch",
       "git log ..origin/main"
     ],
     "suggested_fix": [
-      "Run 'git pull --rebase origin main'"
+      "Run 'git pull --rebase' to sync with remote"
     ],
     "fix_commands": [
       [
         "git",
         "pull",
-        "--rebase",
-        "origin",
-        "main"
+        "--rebase"
+      ]
+    ],
+    "severity": "medium"
+  },
+  {
+    "error_pattern": "fatal: not a git repository",
+    "category": "git_init",
+    "scope": "NOT_FOUND",
+    "recommended_checks": [
+      "ls -a"
+    ],
+    "suggested_fix": [
+      "Run 'git init' in the directory"
+    ],
+    "fix_commands": [
+      [
+        "git",
+        "init"
       ]
     ],
     "severity": "medium"

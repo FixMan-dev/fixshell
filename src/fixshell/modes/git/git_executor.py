@@ -113,6 +113,10 @@ class GitExecutor:
         click.secho("\nSUGGESTED FIX:", fg="green")
         for fix in error_info.get("suggested_fix", []):
             click.echo(f"  - {fix}")
+        if error_info.get("category") == "unknown":
+            click.secho("RAW ERROR OUTPUT:", fg="white", dim=True)
+            click.secho(stderr, fg="red", dim=True)
+        
         click.secho("="*60 + "\n", fg="red")
 
         # Proactive Fix Offering
