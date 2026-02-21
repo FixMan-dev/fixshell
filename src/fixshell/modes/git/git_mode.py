@@ -262,7 +262,7 @@ class GitMode:
         
         if auth_choice == 1:
             self.executor.execute_workflow([
-                {"desc": "Launching browser login", "cmd": ["gh", "auth", "login"]}
+                {"desc": "Launching browser login", "cmd": ["gh", "auth", "login"], "interactive": True}
             ], "GitHub Web Auth")
         elif auth_choice == 2:
             token = click.prompt("Paste your Personal Access Token", hide_input=True)

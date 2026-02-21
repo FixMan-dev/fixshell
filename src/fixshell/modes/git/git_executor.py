@@ -16,7 +16,7 @@ class GitExecutor:
 
     def execute_workflow(self, steps: List[Dict[str, Any]], title: str):
         """
-        Executes a sequence of steps. Each step can have 'cmd', 'desc', 'action'.
+        Executes a sequence of steps. Each step can have 'cmd', 'desc', 'action', 'interactive'.
         """
         click.secho(f"\n--- {title} ---", fg="cyan", bold=True)
         
@@ -39,7 +39,7 @@ class GitExecutor:
             click.echo(f"Step {i}: {desc} ", nl=False)
             
             if 'cmd' in step:
-                success = self.run_command(step['cmd'])
+                success = self.run_command(step['cmd'], interactive=step.get('interactive', False))
                 if not success:
                     return False
             elif 'action' in step:
@@ -53,7 +53,7 @@ class GitExecutor:
         click.secho("\n✔ Workflow Completed Successfully!", fg="green", bold=True)
         return True
 
-    def run_command(self, cmd: Any) -> bool:
+    def run_command(self, cmd: Any, interactive: bool = False) -> bool:
         if isinstance(cmd, str):
             cmd_list = cmd.split()
         else:
@@ -62,6 +62,21 @@ class GitExecutor:
         if self.dry_run:
             click.secho(f"[DRY-RUN] Success", fg="blue")
             return True
+
+        # Special handling for interactive commands (like gh auth login)
+        if interactive:
+            click.echo("(Switching to Interactive Mode)...")
+            try:
+                result = subprocess.run(cmd_list)
+                if result.returncode == 0:
+                    click.secho("✔", fg="green")
+                    return True
+                else:
+                    click.secho("❌", fg="red")
+                    return False
+            except Exception as e:
+                click.secho(f"❌ (Internal Error: {str(e)})", fg="red")
+                return False
 
         while True:
             try:
