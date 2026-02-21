@@ -123,7 +123,28 @@ class GitExecutor:
         fix_cmds = error_info.get("fix_commands")
         if fix_cmds:
             if click.confirm(click.style("Would you like FixShell to apply this fix for you?", fg="cyan", bold=True), default=True):
-                for cmd in fix_cmds:
+                # Try to extract regex matches for placeholder replacement (The Fuck style)
+                matches = []
+                import re
+                try:
+                    pattern = error_info.get("error_pattern", "")
+                    m = re.search(pattern, stderr, re.IGNORECASE)
+                    if m:
+                        matches = m.groups()
+                except:
+                    pass
+
+                for cmd_template in fix_cmds:
+                    cmd = []
+                    for part in cmd_template:
+                        if isinstance(part, str):
+                            # Replace {MATCH_1}, {MATCH_2}, etc.
+                            for i, match_val in enumerate(matches, 1):
+                                part = part.replace(f"{{MATCH_{i}}}", match_val)
+                            cmd.append(part)
+                        else:
+                            cmd.append(part)
+
                     click.secho(f"  Applying: {' '.join(cmd)}...", fg="yellow")
                     if not self.dry_run:
                         res = subprocess.run(cmd, capture_output=True, text=True)

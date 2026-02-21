@@ -1,6 +1,6 @@
 [
   {
-    "error_pattern": "There is no tracking information for the current branch",
+    "error_pattern": "There is no tracking information for the current branch\\. Please specify which branch you want to merge with.*git pull <remote> <branch>",
     "category": "git_upstream",
     "scope": "CONFIG",
     "recommended_checks": [
@@ -8,13 +8,34 @@
       "git branch -a"
     ],
     "suggested_fix": [
-      "Set upstream tracking: 'git branch --set-upstream-to=origin/main'"
+      "Set upstream tracking to origin/main"
     ],
     "fix_commands": [
       [
         "git",
         "branch",
         "--set-upstream-to=origin/main"
+      ]
+    ],
+    "severity": "medium"
+  },
+  {
+    "error_pattern": "fatal: The current branch (.*) has no upstream branch",
+    "category": "git_push_upstream",
+    "scope": "CONFIG",
+    "recommended_checks": [
+      "git branch -a"
+    ],
+    "suggested_fix": [
+      "Push and set upstream for branch '{MATCH_1}'"
+    ],
+    "fix_commands": [
+      [
+        "git",
+        "push",
+        "--set-upstream",
+        "origin",
+        "{MATCH_1}"
       ]
     ],
     "severity": "medium"
@@ -28,8 +49,7 @@
       "check repo collaborators on GitHub"
     ],
     "suggested_fix": [
-      "You don't have write access to this repository.",
-      "Ask the owner for collaborator access or fork the repo."
+      "You don't have write access. Check repo settings on GitHub."
     ],
     "severity": "high"
   },
@@ -42,7 +62,7 @@
       "git config --list --show-origin"
     ],
     "suggested_fix": [
-      "Setup GitHub CLI as credential helper: 'gh auth setup-git'"
+      "Setup GitHub CLI as credential helper"
     ],
     "fix_commands": [
       [
@@ -61,7 +81,7 @@
       "git status"
     ],
     "suggested_fix": [
-      "Stash changes before pull: 'git stash'"
+      "Stash changes before pull"
     ],
     "fix_commands": [
       [
@@ -108,17 +128,5 @@
       ]
     ],
     "severity": "medium"
-  },
-  {
-    "error_pattern": "CONFLICT (content): Merge conflict in",
-    "category": "git_conflict",
-    "scope": "MERGE",
-    "recommended_checks": [
-      "git status"
-    ],
-    "suggested_fix": [
-      "Resolve markers manually, then 'git add' and 'git commit'"
-    ],
-    "severity": "high"
   }
 ]
