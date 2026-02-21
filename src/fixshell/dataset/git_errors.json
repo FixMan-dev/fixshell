@@ -1,132 +1,155 @@
 [
-  {
-    "error_pattern": "There is no tracking information for the current branch\\. Please specify which branch you want to merge with.*git pull <remote> <branch>",
-    "category": "git_upstream",
-    "scope": "CONFIG",
-    "recommended_checks": [
-      "git remote -v",
-      "git branch -a"
-    ],
-    "suggested_fix": [
-      "Set upstream tracking to origin/main"
-    ],
-    "fix_commands": [
-      [
-        "git",
-        "branch",
-        "--set-upstream-to=origin/main"
-      ]
-    ],
-    "severity": "medium"
-  },
-  {
-    "error_pattern": "fatal: The current branch (.*) has no upstream branch",
-    "category": "git_push_upstream",
-    "scope": "CONFIG",
-    "recommended_checks": [
-      "git branch -a"
-    ],
-    "suggested_fix": [
-      "Push and set upstream for branch '{MATCH_1}'"
-    ],
-    "fix_commands": [
-      [
-        "git",
-        "push",
-        "--set-upstream",
-        "origin",
-        "{MATCH_1}"
-      ]
-    ],
-    "severity": "medium"
-  },
-  {
-    "error_pattern": "Permission to .* denied to .*|The requested URL returned error: 403",
-    "category": "git_permission_denied",
-    "scope": "PERMISSION",
-    "recommended_checks": [
-      "gh auth status",
-      "check repo collaborators on GitHub"
-    ],
-    "suggested_fix": [
-      "You don't have write access. Check repo settings on GitHub."
-    ],
-    "severity": "high"
-  },
-  {
-    "error_pattern": "could not read (Username|password)|terminal prompts disabled|Authentication failed",
-    "category": "git_auth",
-    "scope": "AUTH",
-    "recommended_checks": [
-      "gh auth status",
-      "git config --list --show-origin"
-    ],
-    "suggested_fix": [
-      "Setup GitHub CLI as credential helper"
-    ],
-    "fix_commands": [
-      [
-        "gh",
-        "auth",
-        "setup-git"
-      ]
-    ],
-    "severity": "high"
-  },
-  {
-    "error_pattern": "Your local changes to the following files would be overwritten by merge",
-    "category": "git_pull_conflict",
-    "scope": "CONFLICT",
-    "recommended_checks": [
-      "git status"
-    ],
-    "suggested_fix": [
-      "Stash changes before pull"
-    ],
-    "fix_commands": [
-      [
-        "git",
-        "stash"
-      ]
-    ],
-    "severity": "high"
-  },
-  {
-    "error_pattern": "rejected .* (non-fast-forward)",
-    "category": "git_push_conflict",
-    "scope": "CONFLICT",
-    "recommended_checks": [
-      "git fetch",
-      "git log ..origin/main"
-    ],
-    "suggested_fix": [
-      "Run 'git pull --rebase' to sync with remote"
-    ],
-    "fix_commands": [
-      [
-        "git",
-        "pull",
-        "--rebase"
-      ]
-    ],
-    "severity": "medium"
-  },
-  {
-    "error_pattern": "fatal: not a git repository",
-    "category": "git_init",
-    "scope": "NOT_FOUND",
-    "recommended_checks": [
-      "ls -a"
-    ],
-    "suggested_fix": [
-      "Run 'git init' in the directory"
-    ],
-    "fix_commands": [
-      [
-        "git",
-        "init"
-      ]
-    ],
-    "severity": "medium"
-  }
+    {
+        "error_pattern": "not logged into any GitHub hosts|gh: not logged in|You are not logged into any GitHub hosts",
+        "category": "GH_AUTH_REQUIRED",
+        "type": "RECOVERABLE",
+        "priority": 10,
+        "suggested_fix": [
+            "Run 'gh auth login' to authenticate."
+        ],
+        "fix_commands": [
+            [
+                "gh",
+                "auth",
+                "login"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "Permission denied \\(publickey\\)|The requested URL returned error: 403|Permission to (.*) denied to",
+        "category": "AUTH_DENIED",
+        "type": "RECOVERABLE",
+        "priority": 10,
+        "suggested_fix": [
+            "Verify 'gh auth status' and repository write permissions."
+        ],
+        "fix_commands": [
+            [
+                "gh",
+                "auth",
+                "login"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "error: cannot delete branch '(.*)' used by worktree|error: Cannot delete branch '(.*)' checked out at",
+        "category": "GIT_DELETE_CURRENT_BRANCH",
+        "type": "RECOVERABLE",
+        "priority": 7,
+        "suggested_fix": [
+            "The branch '{MATCH_1}' is currently checked out. Switch to main before deleting."
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "checkout",
+                "main"
+            ],
+            [
+                "git",
+                "branch",
+                "-D",
+                "{MATCH_1}"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "The upstream branch of your current branch does not match.*use.*git push origin HEAD:(.*)",
+        "category": "GIT_UPSTREAM_MISMATCH",
+        "type": "RECOVERABLE",
+        "priority": 6,
+        "suggested_fix": [
+            "Push using the explicit refspec: 'git push origin HEAD:{MATCH_1}'"
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "push",
+                "origin",
+                "HEAD:{MATCH_1}"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "fatal: The current branch (.*) has no upstream branch",
+        "category": "GIT_NO_UPSTREAM",
+        "type": "RECOVERABLE",
+        "priority": 5,
+        "suggested_fix": [
+            "Set upstream with 'git push -u origin {MATCH_1}'"
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "push",
+                "--set-upstream",
+                "origin",
+                "{MATCH_1}"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "There is no tracking information for the current branch\\. Please specify which branch you want to merge with",
+        "category": "GIT_NO_TRACKING_INFO",
+        "type": "RECOVERABLE",
+        "priority": 5,
+        "suggested_fix": [
+            "Set upstream tracking to origin/main."
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "branch",
+                "--set-upstream-to=origin/main"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "rejected .* (non-fast-forward)",
+        "category": "GIT_PUSH_REJECTED",
+        "type": "RECOVERABLE",
+        "priority": 6,
+        "suggested_fix": [
+            "Run 'git push --force-with-lease' to sync safely."
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "push",
+                "--force-with-lease"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "error: pathspec '(.*)' did not match any file\\(s\\) known to git",
+        "category": "GIT_PATHSPEC_NOT_FOUND",
+        "type": "RECOVERABLE",
+        "priority": 6,
+        "suggested_fix": [
+            "Try creating the branch '{MATCH_1}' instead."
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "checkout",
+                "-b",
+                "{MATCH_1}"
+            ]
+        ]
+    },
+    {
+        "error_pattern": "fatal: not a git repository",
+        "category": "NOT_A_GIT_REPO",
+        "type": "RECOVERABLE",
+        "priority": 5,
+        "suggested_fix": [
+            "Run 'git init' in this directory."
+        ],
+        "fix_commands": [
+            [
+                "git",
+                "init"
+            ]
+        ]
+    }
 ]

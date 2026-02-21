@@ -21,13 +21,18 @@ class RuleMatcher:
         for entry in self.dataset:
             pattern = entry.get("error_pattern", "")
             try:
-                # Support both literal strings and basic regex
-                if re.search(pattern, output, re.IGNORECASE | re.MULTILINE):
-                    matches.append(entry)
+                # Capture groups to support template replacement ({MATCH_1}, etc.)
+                match_obj = re.search(pattern, output, re.IGNORECASE | re.MULTILINE)
+                if match_obj:
+                    entry_copy = entry.copy()
+                    entry_copy["matches"] = list(match_obj.groups())
+                    matches.append(entry_copy)
             except re.error:
-                # Fallback to literal search if regex is invalid
+                # Fallback to literal search
                 if pattern.lower() in output_lower:
-                    matches.append(entry)
+                    entry_copy = entry.copy()
+                    entry_copy["matches"] = []
+                    matches.append(entry_copy)
         
         return matches
 

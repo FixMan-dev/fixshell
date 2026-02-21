@@ -1,82 +1,104 @@
+
 import click
-import sys
+import os
+import json
 import subprocess
-from .github_templates import GITHUB_TEMPLATES
-from .github_executor import execute_git_workflow
-from .github_validator import is_git_installed, is_gh_installed, current_branch
+from ...engine.error_classifier import ErrorClassifierEngine
+from ...engine.resolver_registry import (
+    ResolverRegistry, handle_gh_auth_login, handle_directory_exists,
+    handle_git_no_upstream, handle_git_no_tracking, handle_git_upstream_mismatch,
+    handle_git_delete_current_branch
+)
+from ...engine.state_machine import WorkflowStateMachine
+from .github_context import GitHubContext
+from .github_templates import GH_MAIN_MENU
 
-def show_github_menu(dry_run: bool):
-    """Interactive GitHub Mode Menu."""
-    click.clear()
-    click.echo(click.style("🐙 GitHub Mode", fg="magenta", bold=True, underline=True))
-    click.echo("")
-    
-    click.echo("1. Initialize Git Repository")
-    click.echo("2. Create GitHub Repository (via gh CLI)")
-    click.echo("3. Push Current Project Safely")
-    click.echo("4. Create Feature Branch")
-    click.echo("5. Sync With Main Branch")
-    click.echo("6. Add CI for Node Project")
-    click.echo("7. Add CI for Python Project")
-    click.echo("8. Show Git Status")
-    click.echo("9. Exit")
-    click.echo("")
-    
-    choice = click.prompt("Select an option", type=int)
-    
-    if choice == 9:
-        sys.exit(0)
-    
-    if choice == 1:
-        execute_git_workflow(GITHUB_TEMPLATES["init_repo"], dry_run)
-    
-    elif choice == 2:
-        # Create via gh CLI
-        repo_name = click.prompt("Repository Name", default="my-new-repo")
-        execute_git_workflow({
-            "name": "Create GitHub Repo",
-            "steps": [
-                {"desc": "Check GH CLI", "action": "validate_gh"},
-                {"desc": f"Creating repo '{repo_name}'", "cmd": f"gh repo create {repo_name} --public --source=. --remote=origin"}
-            ],
-            "summary": f"GitHub repository '{repo_name}' created and linked."
-        }, dry_run)
+class GitHubMode:
+    def __init__(self, dry_run: bool = False):
+        self.dry_run = dry_run
         
-    elif choice == 3:
-        execute_git_workflow({
-            "name": "Safe Push",
-            "steps": [{"desc": "Pushing to origin", "action": "safe_push"}],
-            "summary": f"Branch {current_branch()} pushed successfully."
-        }, dry_run)
+        # 1. Initialize Engine
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        dataset_dir = os.path.join(base_path, "dataset")
+        self.classifier = ErrorClassifierEngine(dataset_dir)
         
-    elif choice == 4:
-        branch_name = click.prompt("New Branch Name")
-        execute_git_workflow({
-            "name": "Create Feature Branch",
-            "steps": [
-                {"desc": f"Creating branch {branch_name}", "cmd": f"git checkout -b {branch_name}"}
-            ],
-            "summary": f"Switched to new branch: {branch_name}"
-        }, dry_run)
+        # 2. Setup Registries
+        self.registry = ResolverRegistry()
+        self.registry.register("GH_AUTH_REQUIRED", handle_gh_auth_login)
+        self.registry.register("GIT_NO_UPSTREAM", handle_git_no_upstream)
+        self.registry.register("GIT_NO_TRACKING_INFO", handle_git_no_tracking)
+        self.registry.register("GIT_UPSTREAM_MISMATCH", handle_git_upstream_mismatch)
+        self.registry.register("GIT_DELETE_CURRENT_BRANCH", handle_git_delete_current_branch)
+        self.registry.register("FS_DIRECTORY_EXISTS", handle_directory_exists)
+        
+        # 3. Instantiate core components
+        self.context = GitHubContext(dry_run)
+        self.sm = WorkflowStateMachine(self.classifier, self.registry, dry_run, mode="github")
 
-    elif choice == 5:
-        execute_git_workflow({
-            "name": "Sync main",
-            "steps": [
-                {"desc": "Fetching", "cmd": "git fetch origin"},
-                {"desc": "Merging main", "cmd": "git merge origin/main"}
-            ],
-            "summary": "Local branch synced with origin/main."
-        }, dry_run)
-        
-    elif choice == 6:
-        execute_git_workflow(GITHUB_TEMPLATES["ci_node"], dry_run)
-        
-    elif choice == 7:
-        execute_git_workflow(GITHUB_TEMPLATES["ci_python"], dry_run)
-        
-    elif choice == 8:
-        subprocess.run(["git", "status", "-s"])
-        
-    input("\nPress Enter to return to menu...")
-    show_github_menu(dry_run)
+    def run_menu(self):
+        while True:
+            click.clear()
+            self.context.refresh()
+            self.context.display(click)
+            
+            click.echo(GH_MAIN_MENU)
+            choice = click.prompt("Select an option", type=int, default=12)
+            
+            if choice == 12: break
+            elif choice == 1: self.auth_menu()
+            elif choice == 2: self.sm.execute_step(["gh", "repo", "list", "--limit", "20"], "Listing Repositories", context_manager=self.context)
+            elif choice == 3: self.select_repo()
+            elif choice == 4: self.create_repo()
+            elif choice == 5: self.link_repo()
+            elif choice == 6: self.manage_branches()
+            elif choice == 7: self.manage_pr()
+            elif choice == 8: self.manage_issues()
+            elif choice == 9: self.manage_ci()
+            elif choice == 10: self.manage_releases()
+            elif choice == 11: self.sm.execute_step(["gh", "repo", "view"], "Showing Repo Details", context_manager=self.context)
+            else: click.secho("Invalid option.", fg="red")
+            
+            if choice != 12:
+                input("\nPress Enter to continue...")
+
+    def auth_menu(self):
+        click.clear()
+        self.context.refresh()
+        click.echo("\n--- GitHub Authentication ---")
+        click.echo("1. Login\n2. Logout\n3. Refresh Token\n4. Status\n5. Cancel")
+        c = click.prompt("Choice", type=int)
+        if c == 1: self.sm.execute_step(["gh", "auth", "login"], "Login", context_manager=self.context, interactive=True)
+        elif c == 2: self.sm.execute_step(["gh", "auth", "logout"], "Logout", context_manager=self.context)
+        elif c == 3: self.sm.execute_step(["gh", "auth", "refresh", "--hostname", "github.com"], "Refresh", context_manager=self.context)
+        elif c == 4: self.sm.execute_step(["gh", "auth", "status"], "Status", context_manager=self.context, interactive=True)
+
+    def create_repo(self):
+        name = click.prompt("Repository Name")
+        private = click.confirm("Private?", default=True)
+        vis = "--private" if private else "--public"
+        self.sm.execute_step(["gh", "repo", "create", name, vis, "--source=.", "--remote=origin"], "Creating Repo", context_manager=self.context)
+        self.sm.execute_step(["git", "push", "-u", "origin", "HEAD"], "Pushing initial code", context_manager=self.context)
+
+    def select_repo(self):
+        name = click.prompt("Enter Repository (owner/repo)")
+        self.sm.execute_step(["gh", "repo", "view", name], f"Viewing {name}", context_manager=self.context)
+
+    def link_repo(self):
+        url = click.prompt("Repository URL or Name")
+        self.sm.execute_step(["git", "remote", "add", "origin", url], "Linking Remote", context_manager=self.context)
+
+    def manage_branches(self):
+        self.sm.execute_step(["git", "branch", "-a"], "Listing all branches", context_manager=self.context)
+
+    def manage_pr(self):
+        title = click.prompt("Title")
+        self.sm.execute_step(["gh", "pr", "create", "--title", title, "--body", "Automated PR"], "Creating PR", context_manager=self.context)
+
+    def manage_issues(self):
+        self.sm.execute_step(["gh", "issue", "list"], "Listing Issues", context_manager=self.context)
+
+    def manage_ci(self):
+        self.sm.execute_step(["gh", "workflow", "list"], "Listing Workflows", context_manager=self.context)
+
+    def manage_releases(self):
+        self.sm.execute_step(["gh", "release", "list"], "Listing Releases", context_manager=self.context)

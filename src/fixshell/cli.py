@@ -13,6 +13,7 @@ from .classifier import ErrorClassifier
 # Import new modes
 from .modes.docker.docker_mode import DockerMode
 from .modes.git.git_mode import GitMode
+from .modes.github.github_mode import GitHubMode
 
 @click.command(context_settings=dict(ignore_unknown_options=True))
 @click.option('--dry-run', is_flag=True, help="Simulate execution without making changes.")
@@ -39,9 +40,9 @@ def main(command_args, dry_run):
     elif cmd_list[0] == 'git':
         mode = GitMode(dry_run=dry_run)
         mode.run_guided_workflow()
-    elif cmd_list[0] == 'github': # Compatibility alias
-        mode = GitMode(dry_run=dry_run)
-        mode.run_guided_workflow()
+    elif cmd_list[0] == 'github' or cmd_list[0] == 'gh':
+        mode = GitHubMode(dry_run=dry_run)
+        mode.run_menu()
     else:
         # Pass to AI Loop
         run_ai_loop(cmd_list)

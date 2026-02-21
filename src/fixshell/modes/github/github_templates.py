@@ -2,6 +2,22 @@
 Static templates for GitHub workflows.
 """
 
+GH_MAIN_MENU = """
+🐙 GitHub CLI Mode – Power Workflow
+1.  Authenticate & Status
+2.  List Repositories
+3.  Switch Current Repository
+4.  Create New Repository (gh repo create)
+5.  Link Local to GitHub (gh repo link)
+6.  Branch Management
+7.  Pull Request Management
+8.  Issue Tracking
+9.  Workflow / CI Actions
+10. Release Management
+11. View Repo Details (Web)
+12. Exit
+"""
+
 GITHUB_TEMPLATES = {
     "init_repo": {
         "name": "Initialize Git Repository",
@@ -18,7 +34,7 @@ GITHUB_TEMPLATES = {
         "description": "Add GitHub Actions workflow for Node.js",
         "steps": [
             {"desc": "Creating .github/workflows", "cmd": "mkdir -p .github/workflows"},
-            {"desc": "Creating node-ci.yml", "cmd": "printf 'name: Node CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - name: Use Node.js\n        uses: actions/setup-node@v3\n        with:\n          node-version: 18\n      - run: npm ci\n      - run: npm test' > .github/workflows/node-ci.yml"}
+            {"desc": "Creating node-ci.yml", "cmd": "printf 'name: Node CI\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v3\\n      - name: Use Node.js\\n        uses: actions/setup-node@v3\\n        with:\\n          node-version: 18\\n      - run: npm ci\\n      - run: npm test' > .github/workflows/node-ci.yml"}
         ],
         "summary": "Node.js CI added to .github/workflows/node-ci.yml"
     },
@@ -27,7 +43,7 @@ GITHUB_TEMPLATES = {
         "description": "Add GitHub Actions workflow for Python",
         "steps": [
             {"desc": "Creating .github/workflows", "cmd": "mkdir -p .github/workflows"},
-            {"desc": "Creating python-ci.yml", "cmd": "printf 'name: Python CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - name: Set up Python\n        uses: actions/setup-python@v4\n        with:\n          python-version: 3.10\n      - run: pip install -r requirements.txt\n      - run: pytest' > .github/workflows/python-ci.yml"}
+            {"desc": "Creating python-ci.yml", "cmd": "printf 'name: Python CI\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v3\\n      - name: Set up Python\\n        uses: actions/setup-python@v4\\n        with:\\n          python-version: 3.10\\n      - run: pip install -r requirements.txt\\n      - run: pytest' > .github/workflows/python-ci.yml"}
         ],
         "summary": "Python CI added to .github/workflows/python-ci.yml"
     }
