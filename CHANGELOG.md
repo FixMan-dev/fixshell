@@ -2,19 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.3] – February 2026
+## [0.1.4] – February 2026
+
+### Fixed
+- **OS Detection**: Resolved "Linux unknown" bug. Detection now correctly parses `/etc/os-release` and falls back to `lsb_release` for granularity.
+- **Safety**: Removed unsafe `get.docker.com` convenience script fallback. All installations now follow the official manual protocol.
 
 ### Added
-- **Full Support**: Official Docker Engine support for Ubuntu Questing 25.10, Noble 24.04 LTS, and Jammy 22.04 LTS.
-- **Mandatory Safety**: All privileged commands (sudo, apt, curl) now require explicit user confirmation `[Y/n]`.
-- **Transparency**: Detailed "Purpose" and "Risk" analysis displayed before every critical execution step.
-- **Reporting**: Live output streaming during installation for real-time visibility.
-- **Support**: Added official support contact 📧 **fixman.services24hrs@gmail.com** in all warnings and error diagnostics.
-
-### Changed
-- Refactored Docker installation logic to use modern `deb822` repository format.
-- Hardcoded 2026 official distro validation.
-- Improved Windows Build 19045/22631 detection and architectural guidance.
+- **Strict Validation**: Mandatory check against supported codenames: **questing (25.10)**, **noble (24.04 LTS)**, and **jammy (22.04 LTS)**.
+- **Noble Fallback**: Choice to fallback to the stable 'noble' repository if detection identifies a derivative or unsupported release.
+- **Mandatory Authorizations**: Every privileged command (sudo, apt, curl) now requires explicit `[Y/n]` confirmation after a detailed Purpose/Risk preview.
+- **Live Diagnostics**: Real-time output streaming during installation and detailed error classification for GPG/Signature issues.
+- **Support Contact**: Official support 📧 **fixman.services24hrs@gmail.com** integrated into all recovery flows.
 
 ## [0.1.2] - 2026-02-22
 - Refined branding and version consensus.

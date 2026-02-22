@@ -77,5 +77,35 @@
       ]
     ],
     "severity": "medium"
+  },
+  {
+    "error_pattern": "not signed|InRelease is not signed",
+    "category": "docker_unsigned_repo",
+    "type": "RECOVERABLE",
+    "scope": "SECURITY",
+    "suggested_fix": [
+      "The repository is not signed or the signature is invalid. Check GPG setup."
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "signatures couldn't be verified|NO_PUBKEY",
+    "category": "docker_gpg_failure",
+    "type": "RECOVERABLE",
+    "scope": "SECURITY",
+    "suggested_fix": [
+      "GPG signature verification failed. The Docker public key might be missing or compromised."
+    ],
+    "severity": "high"
+  },
+  {
+    "error_pattern": "404  Not Found|hash mismatch|Failed to fetch",
+    "category": "docker_codename_mismatch",
+    "type": "RECOVERABLE",
+    "scope": "DETECTION",
+    "suggested_fix": [
+      "Repository mismatch detected. The Ubuntu codename might be incorrect or unsupported."
+    ],
+    "severity": "high"
   }
 ]

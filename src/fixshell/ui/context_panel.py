@@ -25,7 +25,7 @@ class ContextPanel:
             ("🌿 BRANCH", state.get("BRANCH_STATE", "N/A"), "magenta"),
             ("📦 REPO", state.get("REPO_STATE", "No"), "cyan"),
             ("🌐 NETWORK", state.get("NETWORK_STATE", "Online"), "blue"),
-            ("🖥️  OS", f"{state.get('OS_STATE', 'N/A')} ({state.get('DISTRO_STATE', {}).get('codename', 'N/A')}/{state.get('ARCH_STATE', 'N/A')})", "white"),
+            ("🖥️  OS", f"{state.get('DISTRO_STATE', {}).get('pretty_name', state.get('OS_STATE', 'N/A'))} ({state.get('DISTRO_STATE', {}).get('codename', 'N/A')}/{state.get('ARCH_STATE', 'N/A')})", "white"),
             ("🔒 PERMS", state.get("PERMISSION_STATE", "User"), "yellow"),
         ]
 

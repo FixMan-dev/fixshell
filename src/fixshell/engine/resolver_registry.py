@@ -143,7 +143,7 @@ def handle_docker_daemon_service(matches, dry_run: bool = False, **kwargs) -> bo
     return False
 
 def handle_docker_not_installed(matches, dry_run: bool = False, state: Dict[str, Any] = None) -> bool:
-    from ..modes.docker.install import get_ubuntu_installer, get_windows_guide, get_generic_linux_fallback, SUPPORT_EMAIL
+    from ..modes.docker.install import get_ubuntu_installer, get_windows_guide, SUPPORT_EMAIL
     from .executor import Executor
     
     executor = Executor(dry_run=dry_run)
@@ -151,24 +151,43 @@ def handle_docker_not_installed(matches, dry_run: bool = False, state: Dict[str,
     distro_info = state.get("DISTRO_STATE", {})
     arch = state.get("ARCH_STATE", "amd64")
     
-    click.secho(f"\n🧩 FixShell Safe-Install Protocol: Docker Engine (v0.1.3)", fg="white", bold=True)
-    click.echo(f"   Context: {os_name} {distro_info.get('id', '')} ({distro_info.get('codename', '')}) on {arch}")
+    pretty_name = distro_info.get("pretty_name", "Unknown Linux")
+    codename = distro_info.get("codename", "unknown")
+    
+    click.secho(f"\n🧩 FixShell Safe-Install Protocol: Docker Engine (v0.1.4)", fg="white", bold=True)
     
     if os_name == "Linux":
         distro_id = distro_info.get("id", "").lower()
-        codename = distro_info.get("codename", "noble").lower()
         
+        # Validation before any command
+        from ..modes.docker.install import SUPPORTED_CODENAMES
+        is_supported = codename.lower() in SUPPORTED_CODENAMES
+        status_icon = "✅" if is_supported else "❌"
+        
+        click.echo(f"   Detected: {pretty_name} ({codename}) | Arch: {arch} | Supported: {status_icon}")
+
         if distro_id in ["ubuntu", "debian"]:
-            steps, supported = get_ubuntu_installer(codename, arch)
-            
-            if not supported:
-                click.secho(f"\n🚨 ERROR_UNSUPPORTED_DISTRO: '{codename}' is not on the official Feb 2026 support list.", fg="red", bold=True)
-                click.echo(f"   Official Support: Questing 25.10, Noble 24.04 LTS, Jammy 22.04 LTS")
-                click.echo(f"   For issues: {SUPPORT_EMAIL}")
+            if not is_supported:
+                click.secho(f"\n🚨 ERROR_UNSUPPORTED_DISTRO: '{codename}' is not officially supported by Docker (Feb 2026).", fg="red", bold=True)
+                click.echo(f"   Supported: questing (25.10), noble (24.04 LTS), jammy (22.04 LTS)")
+                click.echo("\n   Options:")
+                click.echo("   [F] Fallback to 'noble' repo (Stable LTS)")
+                click.echo("   [M] Manual guide (Docs)")
+                click.echo("   [A] Abort install")
                 
-                if not click.confirm(f"\n   Attempt fallback using 'noble' (Ubuntu 24.04) repository?", default=False):
-                    click.secho("   ❌ Aborted by user.", fg="yellow")
+                choice = click.prompt("\n   Choice", type=click.Choice(['F', 'M', 'A'], case_sensitive=False), default='A')
+                
+                if choice == 'A':
+                    click.secho("   ❌ Installation aborted.", fg="yellow")
                     return False
+                elif choice == 'M':
+                    click.echo("   📝 Please visit: https://docs.docker.com/engine/install/ubuntu/")
+                    return False
+                else:
+                    codename = "noble"
+                    click.secho("   🔧 Switched target repository to 'noble'.", fg="cyan")
+
+            steps, _ = get_ubuntu_installer(codename, arch)
             
             click.secho("\n🛡️  Preparation Complete. Manual step-by-step approval required.", fg="cyan")
             
@@ -182,30 +201,26 @@ def handle_docker_not_installed(matches, dry_run: bool = False, state: Dict[str,
                 )
                 if res.returncode != 0 and res.returncode != 130:
                     click.secho(f"\n❌ STEP FAILED: {step['desc']}", fg="red", bold=True)
-                    click.echo(f"   Diagnostic: Exit {res.returncode}")
                     click.echo(f"   Need help? {SUPPORT_EMAIL}")
                     return False
             
             click.secho("\n✅ Docker installation sequence finalized.", fg="green", bold=True)
-            click.secho(f"   Note: Run 'sudo usermod -aG docker $USER' to enable non-root access.", fg="white", dim=True)
+            click.echo(f"   📧 For support: {SUPPORT_EMAIL}")
             return True
 
         else:
-            # Generic Linux
-            click.secho("\n⚠️  Generic Linux detected. Using Docker convenience script.", fg="yellow")
-            if click.confirm("   Proceed with convenience script? (Limited step-by-step visibility)", default=True):
-                for step in get_generic_linux_fallback():
-                    executor.run(step["cmd"], desc=step["desc"], purpose=step["purpose"], risk=step["risk"], capture=False)
-                return True
+            click.secho(f"\n🚨 UNSUPPORTED_OS: Auto-install not available for {pretty_name}.", fg="red")
+            click.echo(f"   Please follow the official manual guide or contact: {SUPPORT_EMAIL}")
+            return False
 
     elif os_name == "Windows":
-        guide, supported = get_windows_guide(distro_info.get("build", "0"), arch)
+        guide, _ = get_windows_guide(distro_info.get("build", "0"), arch)
         click.secho(f"\n🖥️  Windows 2026 Support Status: {guide['status']}", fg="cyan", bold=True)
         click.echo("-" * 50)
         for s in guide["steps"]: click.echo(f"   {s}")
         click.echo("-" * 50)
         click.secho(f"   ⚠️  {guide['risk_notice']}", fg="yellow")
-        click.secho(f"   📧 Support: {SUPPORT_EMAIL}", fg="white", dim=True)
+        click.secho(f"   📧 For help: {SUPPORT_EMAIL}", fg="white", dim=True)
         return True
 
     return False

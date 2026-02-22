@@ -30,8 +30,8 @@ def get_ubuntu_installer(codename: str, arch: str):
         },
         {
             "desc": "Install prerequisites",
-            "cmd": ["sudo", "apt-get", "update", "&&", "sudo", "apt-get", "install", "-y", "ca-certificates", "curl"],
-            "purpose": "Ensure APT can handle HTTPS repositories and verify GPG signatures.",
+            "cmd": ["sudo", "apt-get", "update", "&&", "sudo", "apt-get", "install", "-y", "ca-certificates", "curl", "gnupg", "lsb-release"],
+            "purpose": "Ensure APT can handle HTTPS repositories, verify GPG signatures, and track distro info.",
             "risk": "low"
         },
         {
@@ -65,10 +65,28 @@ EOF""",
             "risk": "high"
         },
         {
-            "desc": "Update and Install Docker",
-            "cmd": ["sudo", "apt-get", "update", "&&", "sudo", "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"],
-            "purpose": "Synchronize repositories and install the complete Docker Engine suite.",
+            "desc": "Update repository index",
+            "cmd": ["sudo", "apt-get", "update"],
+            "purpose": "Synchronize package lists including the new Docker repository.",
+            "risk": "medium"
+        },
+        {
+            "desc": "Install Docker Engine suite",
+            "cmd": ["sudo", "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"],
+            "purpose": "Install the complete Docker Engine suite from the verified repository.",
             "risk": "high"
+        },
+        {
+            "desc": "Start and enable Docker service",
+            "cmd": ["sudo", "systemctl", "enable", "--now", "docker"],
+            "purpose": "Ensure Docker starts automatically on boot and is running now.",
+            "risk": "medium"
+        },
+        {
+            "desc": "Add user to docker group",
+            "cmd": ["sudo", "usermod", "-aG", "docker", os.environ.get("USER", "$(whoami)")],
+            "purpose": "Allow the current user to run Docker commands without sudo (requires re-login).",
+            "risk": "medium"
         }
     ]
     return steps, is_supported
@@ -77,10 +95,15 @@ def get_windows_guide(build: str, arch: str):
     """
     Generates a high-security guide for Windows 2026.
     """
-    major_ver = 11 if int(build) >= 22000 else 10
+    try:
+        b_int = int(build)
+    except ValueError:
+        b_int = 0
+
+    major_ver = 11 if b_int >= 22000 else 10
     min_build = WIN11_MIN_BUILD if major_ver == 11 else WIN10_MIN_BUILD
     
-    is_supported = int(build) >= min_build
+    is_supported = b_int >= min_build
     download_url = f"https://desktop.docker.com/win/main/{arch}/Docker%20Desktop%20Installer.exe"
     
     guide = {
@@ -89,28 +112,11 @@ def get_windows_guide(build: str, arch: str):
         "steps": [
             f"1. Obtain official installer ({arch}): {download_url}",
             "2. Run Installer.exe and verify 'Use WSL 2 instead of Hyper-V' is CHECKED.",
-            "3. Restart Windows (Build {build}) to finish kernel integration.",
+            "3. Windows Build {build} detected. Restart might be required.",
             "4. Launch Docker Desktop and sign the 2026 Service Agreement.",
             "5. Open PowerShell and verify: 'docker --version'"
         ],
-        "risk_notice": "Manual installation required on Windows. No auto-execution for safety.",
+        "risk_notice": "Manual installation required on Windows for safety. No auto-scripts allowed.",
         "support": SUPPORT_EMAIL
     }
     return guide, is_supported
-
-def get_generic_linux_fallback():
-    """Safety conversion for non-Ubuntu/Debian systems."""
-    return [
-        {
-            "desc": "Convenience Script Deployment",
-            "cmd": ["curl", "-fsSL", "https://get.docker.com", "-o", "get-docker.sh"],
-            "purpose": "Download the official Docker automated installation script.",
-            "risk": "medium"
-        },
-        {
-            "desc": "Run Official Installer",
-            "cmd": ["sudo", "sh", "get-docker.sh"],
-            "purpose": "Execute the Docker convenience script (Caution: Bypasses manual step inspection).",
-            "risk": "high"
-        }
-    ]

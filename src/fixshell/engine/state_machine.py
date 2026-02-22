@@ -1,3 +1,7 @@
+import os
+import sys
+import subprocess
+import platform
 from .retry_engine import RetryEngine
 from .executor import Executor
 from ..ui.context_panel import ContextPanel
@@ -28,43 +32,60 @@ class WorkflowStateMachine:
         }
 
     def _detect_os(self) -> str:
-        import platform
         return platform.system()
 
     def _detect_arch(self) -> str:
-        import platform
         machine = platform.machine().lower()
         if machine in ["x86_64", "amd64"]: return "amd64"
         if machine in ["arm64", "aarch64"]: return "arm64"
         return machine
 
     def _detect_distro(self) -> Dict[str, str]:
-        import platform
         os_name = self._detect_os()
-        info = {"id": "unknown", "version": "unknown", "codename": "unknown", "build": "0"}
+        info = {
+            "id": "unknown", 
+            "version": "unknown", 
+            "codename": "unknown", 
+            "build": "0",
+            "pretty_name": "unknown"
+        }
 
         if os_name == "Linux":
             try:
                 if os.path.exists("/etc/os-release"):
+                    envs = {}
                     with open("/etc/os-release") as f:
                         for line in f:
-                            if line.startswith("ID="): info["id"] = line.split("=")[1].strip().strip('"')
-                            if line.startswith("VERSION_ID="): info["version"] = line.split("=")[1].strip().strip('"')
-                            if line.startswith("VERSION_CODENAME="): info["codename"] = line.split("=")[1].strip().strip('"')
+                            if "=" in line:
+                                k, v = line.rstrip().split("=", 1)
+                                envs[k] = v.strip('"')
+                    
+                    info["id"] = envs.get("ID", "unknown")
+                    info["version"] = envs.get("VERSION_ID", "unknown")
+                    info["pretty_name"] = envs.get("PRETTY_NAME", "unknown")
+                    
+                    # Target Ubuntu specifics as per requirements
+                    info["codename"] = envs.get("UBUNTU_CODENAME") or envs.get("VERSION_CODENAME") or "unknown"
                 
-                # Fallback for codename if missing (e.g. some minimalist distros)
+                # lsb_release fallback
                 if info["codename"] == "unknown":
-                    res = subprocess.run(["lsb_release", "-c"], capture_output=True, text=True)
+                    res = subprocess.run(["lsb_release", "-cs"], capture_output=True, text=True)
                     if res.returncode == 0:
-                        info["codename"] = res.stdout.split(":")[1].strip()
-            except:
+                        info["codename"] = res.stdout.strip()
+                
+                if info["pretty_name"] == "unknown":
+                    res = subprocess.run(["lsb_release", "-ds"], capture_output=True, text=True)
+                    if res.returncode == 0:
+                        info["pretty_name"] = res.stdout.strip()
+
+            except Exception:
                 pass
         
         elif os_name == "Windows":
             v = sys.getwindowsversion()
             info["version"] = f"{v.major}.{v.minor}"
             info["build"] = str(v.build)
-            # Simple heuristic for Edition if needed, but build is primary for 2026 specs
+            info["pretty_name"] = f"Windows {v.major}"
             
         return info
 
