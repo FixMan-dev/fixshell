@@ -1,208 +1,129 @@
 
 import click
 import os
+import subprocess
 from .docker_templates import DOCKER_TEMPLATES
 from .docker_validator import is_docker_installed, is_docker_running, is_port_free, container_exists
-from .docker_executor import DockerExecutor
 from ...engine.classifier import Classifier
+from ...engine.resolver_registry import (
+    ResolverRegistry, handle_docker_name_conflict, handle_docker_daemon_service,
+    handle_docker_not_installed
+)
+from ...engine.state_machine import WorkflowStateMachine
+from ...ui.renderer import Renderer
 
 class DockerMode:
     """
-    Controller for Docker guided workflow.
+    Controller for Docker guided workflow, synchronized with the FixShell Engine.
     """
     
     def __init__(self, dry_run: bool = False):
         self.dry_run = dry_run
+        
+        # 1. Initialize Engine
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         dataset_dir = os.path.join(base_path, "dataset")
         self.classifier = Classifier(dataset_dir)
-        self.executor = DockerExecutor(self.classifier, dry_run=dry_run)
+        
+        # 2. Setup Registries
+        self.registry = ResolverRegistry()
+        self.registry.register("docker_name_conflict", handle_docker_name_conflict)
+        self.registry.register("docker_daemon_service", handle_docker_daemon_service)
+        self.registry.register("docker_not_installed", handle_docker_not_installed)
+        
+        # 3. Instantiate core components
+        self.sm = WorkflowStateMachine(self.classifier, self.registry, dry_run, mode="docker")
 
     def run_guided_workflow(self):
-        click.clear()
-        click.secho("=== Docker Guided Workflow Mode ===", fg="blue", bold=True)
-        
-        # Step 1: Environment Validation
-        click.secho("\n[1] Validating Docker Environment...", fg="yellow")
-        checks = [
-            (is_docker_installed(), "Docker installed"),
-            (is_docker_running(), "Docker daemon running")
-        ]
-        
-        fatal = False
-        for success, msg in checks:
-            icon = "✔" if success else "❌"
-            color = "green" if success else "red"
-            click.secho(f"  {icon} {msg}", fg=color)
-            if not success:
-                fatal = True
-        
-        if fatal:
-            click.secho("\nFatal: Docker environment not ready.", fg="red", bold=True)
-            return
-
-        # Step 2: Template Selection
-        click.secho("\n[2] Select Template", fg="yellow")
-        options = [
-            "Create Node Web App Container",
-            "Create Python Web App Container",
-            "Run MySQL Database",
-            "Run PostgreSQL Database",
-            "Build Image from Current Folder",
-            "Debug Running Container",
-            "Stop Container Safely",
-            "Exit"
-        ]
-        
-        for i, opt in enumerate(options, 1):
-            click.echo(f"{i}. {opt}")
-            
-        choice = click.prompt("\nSelect an option", type=int, default=len(options))
-        
-        if choice >= len(options):
-            return
-
-        selected_key = list(DOCKER_TEMPLATES.keys())[choice-1] if choice <= 4 else None
-        
-        if choice <= 4:
-            self._run_predefined_template(selected_key)
-        elif choice == 5:
-            self._build_current_folder()
-        elif choice == 6:
-            self._debug_container()
-        elif choice == 7:
-            self._stop_container()
-
-    def _handle_docker_port_conflict(self, port_host):
-        """Recovery decision tree for port conflicts."""
         while True:
-            click.secho(f"\n⚠ Port {port_host} is already in use.", fg="yellow")
-            click.echo("Choose how to proceed:")
-            click.echo("1. Specify a different host port")
-            click.echo("2. Automatic rename (increment port)")
-            click.echo("3. Cancel")
+            click.clear()
+            Renderer.print_banner("Docker Guided Workflow")
             
-            choice = click.prompt("Select an option", type=int, default=1)
-            if choice == 1:
-                new_port = click.prompt("Enter new host port", type=int)
-                if is_port_free(new_port): return new_port
-                port_host = new_port
-            elif choice == 2:
-                new_port = port_host + 1
-                while not is_port_free(new_port):
-                    new_port += 1
-                click.secho(f"✔ Found free port: {new_port}", fg="green")
-                return new_port
-            else:
-                return None
+            # Use orchestrated StateMachine to refresh and render context
+            self.sm.refresh_context()
 
-    def _handle_docker_container_conflict(self, name):
-        """Recovery decision tree for container name conflicts."""
-        while True:
-            click.secho(f"\n⚠ Container named '{name}' already exists.", fg="yellow")
-            click.echo("Choose how to proceed:")
-            click.echo("1. Use a different name")
-            click.echo("2. Force remove existing container and recreate (Destructive)")
-            click.echo("3. Rename automatically (append -1, -2, etc.)")
-            click.echo("4. Cancel")
+            # Step 1: Template Selection
+            click.secho("\n🎁 Available Templates:", fg="cyan", bold=True)
+            options = [
+                "Install Docker Engine (Guided)",
+                "Create Node Web App Container",
+                "Create Python Web App Container",
+                "Run MySQL Database",
+                "Run PostgreSQL Database",
+                "Build Image from Current Folder",
+                "Debug Running Container",
+                "Stop/Remove Container Safely",
+                "Exit Mode"
+            ]
             
-            choice = click.prompt("Select an option", type=int, default=1)
+            for i, opt in enumerate(options, 1):
+                click.echo(f"{i}. {opt}")
+                
+            choice = click.prompt("\nSelect an option", type=int, default=len(options))
+            
+            if choice >= len(options):
+                break
+
             if choice == 1:
-                name = click.prompt("Enter new container name")
-                if not container_exists(name): return name
-            elif choice == 2:
-                if click.confirm(click.style(f"Force remove '{name}'?", fg="red")):
-                    if not self.dry_run:
-                        import subprocess
-                        subprocess.run(["docker", "rm", "-f", name], capture_output=True)
-                    return name
-            elif choice == 3:
-                counter = 1
-                while container_exists(f"{name}-{counter}"):
-                    counter += 1
-                new_name = f"{name}-{counter}"
-                click.secho(f"✔ Using name: {new_name}", fg="green")
-                return new_name
-            else:
-                return None
+                self._install_docker_guided()
+            elif choice <= 5:
+                # choice 2->index 0, 3->index 1, 4->index 2, 5->index 3
+                selected_key = list(DOCKER_TEMPLATES.keys())[choice-2]
+                self._run_predefined_template(selected_key)
+            elif choice == 6:
+                self._build_current_folder()
+            elif choice == 7:
+                self._debug_container()
+            elif choice == 8:
+                self._stop_container()
+            
+            input("\nPress Enter to return to menu...")
+
+    def _install_docker_guided(self):
+        """Manually trigger the installation resolver logic."""
+        handle_docker_not_installed([], dry_run=self.dry_run, state=self.sm.state)
 
     def _run_predefined_template(self, template_key):
         template = DOCKER_TEMPLATES[template_key]
-        click.secho(f"\n--- {template['name']} ---", fg="cyan")
+        Renderer.print_step(f"Template: {template['name']}")
         
-        # Structured Inputs
-        c_name = click.prompt("Container name", default=template_key.replace("_", "-"))
-        port = click.prompt("Host port mapping (Host:Container)", default=f"{template['steps'][1].get('port', 8080)}:{template['steps'][1].get('port', 8080)}")
-        env_vars = click.prompt("Environment variables (KEY=VAL, separated by comma)", default="", show_default=False)
-        volumes = click.prompt("Volume mapping (Host:Container, optional)", default="", show_default=False)
+        # Inputs
+        name = click.prompt("   Container name", default=template_key.replace("_", "-"))
+        port_host = click.prompt("   Host port", type=int, default=template['steps'][1].get('port', 8080))
         
-        # Recovery Loop for Port
-        port_host = int(port.split(':')[0])
-        port_container = port.split(':')[1]
+        # Basic validation (Manual for now, can be resolved by engine if it fails)
         if not is_port_free(port_host):
-            port_host = self._handle_docker_port_conflict(port_host)
-            if not port_host: return
-            port = f"{port_host}:{port_container}"
+            Renderer.print_info(f"Port {port_host} is in use. Engine will attempt to resolve if it fails.")
 
-        # Recovery Loop for Container Name
-        if container_exists(c_name):
-            c_name = self._handle_docker_container_conflict(c_name)
-            if not c_name: return
-
-        # Execution
-        click.secho("\n[3] Executing Workflow...", fg="yellow")
+        # Construct commands from template
         for step in template['steps']:
             if 'cmd' in step:
                 cmd = step['cmd'].split()
-                # Inject user inputs into the 'run' command
+                # Simple replacement for demonstration
                 if "run" in cmd:
-                    # Insert name and port
+                    # In a real tool, we'd have a better template engine
                     for i, arg in enumerate(cmd):
-                        if arg == "--name": cmd[i+1] = c_name
-                        if arg == "-p": cmd[i+1] = port
-                    
-                    # Insert Envs
-                    if env_vars:
-                        for ev in env_vars.split(','):
-                            cmd.insert(cmd.index("run") + 1, f"{ev.strip()}")
-                            cmd.insert(cmd.index("run") + 1, "-e")
-                            
-                    # Insert Volumes
-                    if volumes:
-                        for vol in volumes.split(','):
-                            cmd.insert(cmd.index("run") + 1, f"{vol.strip()}")
-                            cmd.insert(cmd.index("run") + 1, "-v")
+                        if arg == "--name": cmd[i+1] = name
+                        if arg == "-p":
+                            container_port = cmd[i+1].split(':')[1]
+                            cmd[i+1] = f"{port_host}:{container_port}"
                 
-                if not self.executor.execute(cmd, step['desc']):
-                    return
-        
-        click.secho("\n✔ SUCCESS: Container is running!", fg="green", bold=True)
-        click.echo(template['summary'])
+                self.sm.execute_step(cmd, step['desc'])
 
     def _build_current_folder(self):
         if not os.path.exists("Dockerfile"):
-            click.secho("❌ No Dockerfile found in current directory.", fg="red")
+            Renderer.print_error("No Dockerfile found in current directory.")
             return
         
-        tag = click.prompt("Image tag", default="myapp:latest")
-        self.executor.execute(["docker", "build", "-t", tag, "."], f"Building image {tag}")
+        tag = click.prompt("   Image tag", default="myapp:latest")
+        self.sm.execute_step(["docker", "build", "-t", tag, "."], f"Building Image: {tag}")
 
     def _debug_container(self):
-        c_name = click.prompt("Enter container name to debug")
-        if not container_exists(c_name):
-            click.secho(f"❌ Container '{c_name}' not found.", fg="red")
-            return
-        
-        click.echo("Running 'docker logs' and 'docker stats'...")
-        self.executor.execute(["docker", "logs", "--tail", "20", c_name], "Fetching logs")
-        self.executor.execute(["docker", "inspect", "-f", "{{.State.Status}}", c_name], "Checking status")
+        name = click.prompt("   Container name")
+        self.sm.execute_step(["docker", "logs", "--tail", "20", name], f"Fetching Logs for {name}")
 
     def _stop_container(self):
-        c_name = click.prompt("Enter container name to stop")
-        if not container_exists(c_name):
-             click.secho(f"❌ Container '{c_name}' not found.", fg="red")
-             return
-             
-        self.executor.execute(["docker", "stop", c_name], f"Stopping {c_name}")
-        if click.confirm(f"Remove container {c_name}?", default=False):
-            self.executor.execute(["docker", "rm", c_name], f"Removing {c_name}")
+        name = click.prompt("   Container name")
+        if self.sm.execute_step(["docker", "stop", name], f"Stopping {name}"):
+            if click.confirm("   Remove container permanently?", default=True):
+                self.sm.execute_step(["docker", "rm", name], f"Removing {name}")

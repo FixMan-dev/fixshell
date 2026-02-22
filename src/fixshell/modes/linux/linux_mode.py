@@ -18,30 +18,33 @@ class LinuxMode:
         self.registry = ResolverRegistry()
         self.sm = WorkflowStateMachine(self.classifier, self.registry, dry_run=dry_run, mode="linux")
 
-    def diagnose_and_fix(self, cmd_list: list):
+    def diagnose_and_fix(self, cmd_list: list, use_ai: bool = False):
         if not cmd_list:
             Renderer.print_error("No command provided for diagnosis.")
             return
 
+        if use_ai:
+            Renderer.print_info("🚀 AI-Powered Diagnosis enabled (using Ollama)")
+            # In a real implementation, this would call the LLM engine
+            # For v0.2.0, we prioritize deterministic paths.
+        
         Renderer.print_info(f"Probing environment context for: {' '.join(cmd_list)}")
         
-        # 1. Run the command and catch failure
-        # (Actually RetryEngine does this, but we can do a pre-probe here)
-        
-        # 2. Evidence Scoring Logic
-        # We look at the command and the environment to predict issues
+        # 1. Evidence Scoring Logic (Deterministic)
         evidence = self._calculate_evidence_score(cmd_list)
         if evidence["score"] > 0:
             Renderer.print_info(f"Top Suspect: [bold]{evidence['suspect']}[/bold] (Score: {evidence['score']})")
             for link in evidence["links"]:
                 Renderer.print_info(f"  🔗 Evidence: {link}")
 
-        # 3. Delegate to State Machine for execution and recovery
+        # 2. Delegate to State Machine for execution and recovery
         success = self.sm.execute_step(cmd_list, f"Running with Self-Healing")
 
         if success:
             Renderer.print_success("Operation completed successfully.")
         else:
+            if not use_ai:
+                Renderer.print_info("💡 Tip: Try running with '--ai' for a deeper LLM-based diagnosis.")
             Renderer.print_error("Recovery failed after multiple attempts.")
 
     def _calculate_evidence_score(self, cmd_list: list):

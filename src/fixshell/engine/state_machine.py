@@ -20,8 +20,29 @@ class WorkflowStateMachine:
             "BRANCH_STATE": "N/A",
             "NETWORK_STATE": "Online",
             "PERMISSION_STATE": "User",
-            "WORKFLOW_STATE": "Idle"
+            "WORKFLOW_STATE": "Idle",
+            "OS_STATE": self._detect_os(),
+            "DISTRO_STATE": self._detect_distro()
         }
+
+    def _detect_os(self) -> str:
+        import platform
+        return platform.system()
+
+    def _detect_distro(self) -> str:
+        if self._detect_os() != "Linux":
+            return "N/A"
+        try:
+            import os
+            if os.path.exists("/etc/os-release"):
+                with open("/etc/os-release") as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if line.startswith("ID="):
+                            return line.split("=")[1].strip().strip('"')
+            return "unknown-linux"
+        except:
+            return "unknown"
 
     def update_state(self, key: str, value: Any):
         self.state[key] = value
@@ -57,7 +78,8 @@ class WorkflowStateMachine:
             cmd_list, 
             desc, 
             context_manager=context_manager, 
-            interactive=interactive
+            interactive=interactive,
+            state=self.state
         )
         
         self.state["WORKFLOW_STATE"] = "Idle"

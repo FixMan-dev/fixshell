@@ -15,7 +15,9 @@ class ContextPanel:
 
     @staticmethod
     def render(state: Dict[str, Any]):
-        table = Table(show_header=False, box=None, padding=(0, 1))
+        table = Table(show_header=False, box=None, padding=(0, 2))
+        table.add_column("Icon", no_wrap=True)
+        table.add_column("Value", no_wrap=True)
         
         # CATEGORIES: AUTH, REPO, BRANCH, NETWORK, etc.
         rows = [
@@ -23,6 +25,7 @@ class ContextPanel:
             ("🌿 BRANCH", state.get("BRANCH_STATE", "N/A"), "magenta"),
             ("📦 REPO", state.get("REPO_STATE", "No"), "cyan"),
             ("🌐 NETWORK", state.get("NETWORK_STATE", "Online"), "blue"),
+            ("🖥️  OS", f"{state.get('OS_STATE', 'N/A')} ({state.get('DISTRO_STATE', 'N/A')})", "white"),
             ("🔒 PERMS", state.get("PERMISSION_STATE", "User"), "yellow"),
         ]
 
@@ -37,6 +40,6 @@ class ContextPanel:
             title="[bold cyan]SYSTEM CONTEXT[/bold cyan]",
             border_style="bright_black",
             expand=False,
-            padding=(1, 2)
+            padding=(0, 2)
         ))
         console.print("")

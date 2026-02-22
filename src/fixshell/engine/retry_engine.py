@@ -15,7 +15,7 @@ class RetryEngine:
         self.executor = executor
         self.mode = mode
 
-    def execute_with_recovery(self, cmd_list: list, desc: str, context_manager=None, interactive: bool = False) -> bool:
+    def execute_with_recovery(self, cmd_list: list, desc: str, context_manager=None, interactive: bool = False, state: Dict[str, Any] = None) -> bool:
         max_retries = 3
         retry_count = 0
         tried_categories = set()
@@ -55,7 +55,7 @@ class RetryEngine:
                 if resolver:
                     tried_categories.add(category)
                     matches = diagnosis.get("matches", [])
-                    if resolver(matches, dry_run=self.executor.dry_run):
+                    if resolver(matches, dry_run=self.executor.dry_run, state=state):
                         Renderer.print_info("Resolution applied. Retrying original command...")
                         if context_manager: context_manager.refresh()
                         retry_count += 1

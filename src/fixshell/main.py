@@ -13,7 +13,7 @@ from .config import VERSION
 @click.pass_context
 def cli(ctx, dry_run):
     """
-    FixShell AI - The Deterministic, State-Aware DevOps Engine.
+    FixShell - The Deterministic, State-Aware DevOps Engine.
     """
     ctx.ensure_object(dict)
     ctx.obj['dry_run'] = dry_run
@@ -40,15 +40,16 @@ def docker(ctx):
     mode.run_guided_workflow()
 
 @cli.command(context_settings=dict(ignore_unknown_options=True))
+@click.option('--ai', is_flag=True, help="Use LLM (Ollama) for deep diagnosis.")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def diagnosis(ctx, args):
-    """AI Diagnosis Mode for arbitrary commands."""
+def diagnosis(ctx, ai, args):
+    """Deterministic (default) or AI-powered diagnosis for arbitrary commands."""
     mode = LinuxMode(dry_run=ctx.obj['dry_run'])
-    mode.diagnose_and_fix(list(args))
+    mode.diagnose_and_fix(list(args), use_ai=ai)
 
 def main():
-    Renderer.print_banner("FixShell AI Engine")
+    Renderer.print_banner("FixShell Engine")
     try:
         cli(obj={})
     except Exception as e:

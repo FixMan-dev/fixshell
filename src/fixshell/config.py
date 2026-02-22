@@ -1,7 +1,7 @@
 import os
 
 # FixShell Configuration
-VERSION = "2.0.0"
+VERSION = "0.1.2"
 DEBUG = os.getenv("FIXSHELL_DEBUG", "0") == "1"
 
 # Paths

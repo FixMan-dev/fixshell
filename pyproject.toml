@@ -1,25 +1,54 @@
-[tool.poetry]
-name = "fixshell"
-version = "2.0.0"
-description = "Deterministic, State-Aware DevOps Engine"
-authors = ["Thilak Divyadharshan <tdd@example.com>"]
-readme = "README.md"
-packages = [{include = "fixshell", from = "src"}]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-click = "^8.1.0"
-psutil = "^5.9.0" 
-ollama = "^0.4.0"
-rich = "^13.0.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.0.0"
-
-[tool.poetry.scripts]
-fixshell = "fixshell.main:main"
-fx = "fixshell.main:main"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fixshell"
+version = "0.1.2"
+description = "Deterministic, state-aware DevOps orchestration engine for Linux, Git, GitHub, Docker"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Thilak Divyadharshan", email = "fixman.services24hrs@gmail.com" },
+]
+keywords = [
+    "devops",
+    "automation",
+    "git",
+    "docker",
+    "linux",
+    "self-healing",
+    "orchestration",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "click>=8.1.0",
+    "psutil>=5.9.0",
+    "ollama>=0.4.0",
+    "rich>=13.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/FixMan-dev/fixshell"
+Issues = "https://github.com/FixMan-dev/fixshell/issues"
+
+[project.scripts]
+fixshell = "fixshell.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fixshell"]
+
+[tool.hatch.version]
+path = "src/fixshell/config.py"

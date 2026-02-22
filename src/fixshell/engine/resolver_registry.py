@@ -17,7 +17,7 @@ class ResolverRegistry:
 
 # --- Resolvers ---
 
-def handle_directory_exists(matches, dry_run: bool = False) -> bool:
+def handle_directory_exists(matches, dry_run: bool = False, **kwargs) -> bool:
     path = matches[0] if matches else "unknown"
     click.secho(f"\n⚠ Path conflict: '{path}' already exists.", fg="yellow")
     click.echo("1. Use existing contents\n2. Wipe and clean\n3. Rename automatically\n4. Cancel")
@@ -38,7 +38,7 @@ def handle_directory_exists(matches, dry_run: bool = False) -> bool:
         return True
     return False
 
-def handle_git_no_upstream(matches, dry_run: bool = False) -> bool:
+def handle_git_no_upstream(matches, dry_run: bool = False, **kwargs) -> bool:
     branch = matches[0] if matches else "main"
     cmd = ["git", "push", "--set-upstream", "origin", branch]
     click.secho(f"🔧 Applying Fix: Setting upstream for {branch}", fg="cyan")
@@ -47,7 +47,7 @@ def handle_git_no_upstream(matches, dry_run: bool = False) -> bool:
         return res.returncode == 0
     return True
 
-def handle_git_no_tracking(matches, dry_run: bool = False) -> bool:
+def handle_git_no_tracking(matches, dry_run: bool = False, **kwargs) -> bool:
     click.secho("\n⚠ No tracking info for pull.", fg="yellow")
     click.echo("1. Pull from origin/main and SET as upstream")
     click.echo("2. Pull from origin/main once")
@@ -62,7 +62,7 @@ def handle_git_no_tracking(matches, dry_run: bool = False) -> bool:
             return subprocess.run(["git", "pull", "origin", "main"]).returncode == 0
     return False
 
-def handle_git_upstream_mismatch(matches, dry_run: bool = False) -> bool:
+def handle_git_upstream_mismatch(matches, dry_run: bool = False, **kwargs) -> bool:
     # Git usually suggests the right command in the error output
     # If the user is seeing this, we should offer to push to HEAD:main or HEAD:danger etc.
     click.secho("\n⚠ Upstream branch name mismatch.", fg="yellow")
@@ -83,7 +83,7 @@ def handle_git_upstream_mismatch(matches, dry_run: bool = False) -> bool:
         return True
     return False
 
-def handle_git_delete_current_branch(matches, dry_run: bool = False) -> bool:
+def handle_git_delete_current_branch(matches, dry_run: bool = False, **kwargs) -> bool:
     branch = matches[0] if matches else "unknown"
     click.secho(f"\n⚠ Cannot delete active branch '{branch}'.", fg="yellow")
     
@@ -111,9 +111,59 @@ def handle_git_delete_current_branch(matches, dry_run: bool = False) -> bool:
         return True
     return False
 
-def handle_gh_auth_login(matches, dry_run: bool = False) -> bool:
+def handle_gh_auth_login(matches, dry_run: bool = False, **kwargs) -> bool:
     click.secho("\n💊 Needs Authentication: GitHub CLI is not logged in.", fg="yellow", bold=True)
     if click.confirm("   Would you like to authenticate now?", default=True):
         if not dry_run: subprocess.run(["gh", "auth", "login"])
+        return True
+    return False
+
+# --- Docker Resolvers ---
+
+def handle_docker_name_conflict(matches, dry_run: bool = False, **kwargs) -> bool:
+    name = matches[0] if matches else "unknown"
+    click.secho(f"\n⚠ Docker container name conflict: '{name}' already exists.", fg="yellow")
+    click.echo("1. Stop and remove existing container\n2. Rename new container automatically\n3. Cancel")
+    choice = click.prompt("Resolution", type=int, default=1)
+    if choice == 1:
+        if not dry_run:
+            subprocess.run(["docker", "rm", "-f", name])
+        return True
+    if choice == 2:
+        return True # The SM handles retry, but if we rename we might need to modify the command. 
+                    # For now, let's just support removal.
+    return False
+
+def handle_docker_daemon_service(matches, dry_run: bool = False, **kwargs) -> bool:
+    click.secho("\n💊 Docker daemon is not running.", fg="yellow", bold=True)
+    if click.confirm("   Would you like to start the Docker service now?", default=True):
+        if not dry_run:
+            subprocess.run(["sudo", "systemctl", "start", "docker"])
+        return True
+    return False
+
+def handle_docker_not_installed(matches, dry_run: bool = False, state: Dict[str, Any] = None) -> bool:
+    from ..modes.docker.install import INSTALL_TEMPLATES
+    
+    os_name = state.get("OS_STATE", "Linux")
+    distro = state.get("DISTRO_STATE", "fallback")
+    
+    click.secho(f"\n💊 Docker is not installed on {os_name} ({distro}).", fg="yellow", bold=True)
+    
+    template_key = distro if distro in INSTALL_TEMPLATES else "fallback"
+    if os_name == "Windows": template_key = "windows_wsl"
+    
+    template = INSTALL_TEMPLATES.get(template_key)
+    click.secho(f"   FixShell suggests: {template['name']}", fg="cyan")
+    
+    if click.confirm("   Would you like to proceed with the installation guide?", default=True):
+        for step in template["steps"]:
+            click.secho(f"\n   [GUIDE] {step['desc']}", fg="white", dim=True)
+            cmd = step["cmd"]
+            cmd_disp = " ".join(cmd) if isinstance(cmd, list) else cmd
+            click.secho(f"   $ {cmd_disp}", fg="bright_black")
+            if click.confirm("   Execute this step?", default=True):
+                if not dry_run:
+                    subprocess.run(cmd, shell=isinstance(cmd, str))
         return True
     return False

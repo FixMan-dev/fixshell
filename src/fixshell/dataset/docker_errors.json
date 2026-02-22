@@ -1,7 +1,22 @@
 [
   {
+    "error_pattern": "docker: command not found|docker: not found",
+    "category": "docker_not_installed",
+    "type": "RECOVERABLE",
+    "scope": "RESOURCE",
+    "recommended_checks": [
+      "which docker",
+      "ls /usr/bin/docker"
+    ],
+    "suggested_fix": [
+      "Docker is not installed on this system. FixShell can guide you through a distro-specific installation."
+    ],
+    "severity": "high"
+  },
+  {
     "error_pattern": "permission denied while trying to connect to the Docker daemon socket",
     "category": "docker_daemon_permission",
+    "type": "RECOVERABLE",
     "scope": "PERMISSION",
     "recommended_checks": [
       "ls -l /var/run/docker.sock",
@@ -24,6 +39,7 @@
   {
     "error_pattern": "Cannot connect to the Docker daemon at .* Is the docker daemon running?",
     "category": "docker_daemon_service",
+    "type": "RECOVERABLE",
     "scope": "SERVICE",
     "recommended_checks": [
       "systemctl status docker"
@@ -44,6 +60,7 @@
   {
     "error_pattern": "Conflict. The container name \"(.*)\" is already in use",
     "category": "docker_name_conflict",
+    "type": "RECOVERABLE",
     "scope": "CONFLICT",
     "recommended_checks": [
       "docker ps -a"
