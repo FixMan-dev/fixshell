@@ -2,28 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] - 2026-02-22
+## [0.2.0] – February 2026
 
 ### Added
-- **Docker Lifecycle Enhancements**:
-    - State-aware installation detection (detects missing binary or stopped daemon).
-    - Distro-specific installation guides for Ubuntu/Debian, Fedora, Arch, and CentOS.
-    - Windows/WSL installation assistance.
-    - Port and Container name conflict resolution.
-- **Improved UI/UX**:
-    - High-fidelity `rich`-based context panel showing OS, Distro, and system health.
-    - Command preview blocks ("PLAN") for transparency before execution.
-    - Professional banners and status indicators.
-- **Universal Linux Diagnosis**:
-    - Evidence-based scoring system to identify root causes like `DISK_FULL` or `PORT_CONFLICT`.
-- **Modern Packaging**:
-    - Migrated to Hatch backend (PEP 621 compliant).
-    - Added GitHub Actions for Trusted Publishing (OIDC).
+- **Full Support**: Official Docker Engine support for Ubuntu Questing 25.10, Noble 24.04 LTS, and Jammy 22.04 LTS.
+- **Mandatory Safety**: All privileged commands (sudo, apt, curl) now require explicit user confirmation `[Y/n]`.
+- **Transparency**: Detailed "Purpose" and "Risk" analysis displayed before every critical execution step.
+- **Reporting**: Live output streaming during installation for real-time visibility.
+- **Support**: Added official support contact 📧 **fixman.services24hrs@gmail.com** in all warnings and error diagnostics.
 
 ### Changed
-- Refactored core engine into decoupled modules: `Classifier`, `Executor`, `RetryEngine`, and `WorkflowStateMachine`.
-- Consolidated error datasets into deterministic JSON files.
-- Renamed project CLI to `fixshell` (with `fx` alias).
+- Refactored Docker installation logic to use modern `deb822` repository format.
+- Hardcoded 2026 official distro validation.
+- Improved Windows Build 19045/22631 detection and architectural guidance.
+
+## [0.1.2] - 2026-02-22
+- Refined branding and version consensus.
+- Optimized Docker installers for shell-aware execution.
 
 ## [0.1.1] - 2026-02-19
 - Initial release with early Git and AI diagnosis features.
