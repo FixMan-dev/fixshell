@@ -3,7 +3,7 @@ import click
 import os
 import json
 import subprocess
-from ...engine.error_classifier import ErrorClassifierEngine
+from ...engine.classifier import Classifier
 from ...engine.resolver_registry import (
     ResolverRegistry, handle_gh_auth_login, handle_directory_exists,
     handle_git_no_upstream, handle_git_no_tracking, handle_git_upstream_mismatch,
@@ -20,7 +20,7 @@ class GitHubMode:
         # 1. Initialize Engine
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         dataset_dir = os.path.join(base_path, "dataset")
-        self.classifier = ErrorClassifierEngine(dataset_dir)
+        self.classifier = Classifier(dataset_dir)
         
         # 2. Setup Registries
         self.registry = ResolverRegistry()

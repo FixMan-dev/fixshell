@@ -1,0 +1,53 @@
+[
+    {
+        "error_pattern": "address already in use",
+        "category": "PORT_CONFLICT",
+        "type": "RECOVERABLE",
+        "priority": 10,
+        "suggested_fix": [
+            "Identify and stop the process using this port."
+        ],
+        "recommended_checks": [
+            "sudo ss -tulpn | grep {MATCH_1}"
+        ]
+    },
+    {
+        "error_pattern": "no space left on device",
+        "category": "DISK_FULL",
+        "type": "RECOVERABLE",
+        "priority": 10,
+        "suggested_fix": [
+            "Clean up disk space or expand partition."
+        ],
+        "recommended_checks": [
+            "df -h",
+            "du -sh * | sort -hr | head -n 5"
+        ]
+    },
+    {
+        "error_pattern": "Permission denied|operation not permitted",
+        "category": "PERMISSION_DENIED",
+        "type": "RECOVERABLE",
+        "priority": 10,
+        "suggested_fix": [
+            "Run the command with sudo or check file permissions."
+        ],
+        "recommended_checks": [
+            "ls -l {MATCH_1}",
+            "whoami"
+        ]
+    },
+    {
+        "error_pattern": "command not found",
+        "category": "COMMAND_MISSING",
+        "type": "RECOVERABLE",
+        "priority": 5,
+        "suggested_fix": [
+            "Install the missing package or update PATH."
+        ],
+        "recommended_checks": [
+            "apt search {MATCH_1}",
+            "echo $PATH"
+        ]
+    }
+]

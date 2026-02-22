@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "fixshell"
-version = "0.1.1"
-description = "Hybrid, LLM-Centered, System-Aware FixShell"
+version = "2.0.0"
+description = "Deterministic, State-Aware DevOps Engine"
 authors = ["Thilak Divyadharshan <tdd@example.com>"]
 readme = "README.md"
 packages = [{include = "fixshell", from = "src"}]
@@ -9,18 +9,16 @@ packages = [{include = "fixshell", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 click = "^8.1.0"
-# psutil was mentioned in the plan for context collection
 psutil = "^5.9.0" 
-# requests probably for ollama eventually if not using 'ollama' package
-# but plan says 'ollama pull' and 'ollama package'
-ollama = "^0.4.0" # Assuming a mock version or available version, check pypi later. Actually better use known package if exists.
-# `ollama` is a python package.
+ollama = "^0.4.0"
+rich = "^13.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0.0"
 
 [tool.poetry.scripts]
-fixshell = "fixshell.cli:main"
+fixshell = "fixshell.main:main"
+fx = "fixshell.main:main"
 
 [build-system]
 requires = ["poetry-core"]

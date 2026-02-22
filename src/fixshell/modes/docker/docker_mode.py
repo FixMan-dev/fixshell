@@ -4,7 +4,7 @@ import os
 from .docker_templates import DOCKER_TEMPLATES
 from .docker_validator import is_docker_installed, is_docker_running, is_port_free, container_exists
 from .docker_executor import DockerExecutor
-from ...engine.error_classifier import ErrorClassifierEngine
+from ...engine.classifier import Classifier
 
 class DockerMode:
     """
@@ -15,7 +15,7 @@ class DockerMode:
         self.dry_run = dry_run
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         dataset_dir = os.path.join(base_path, "dataset")
-        self.classifier = ErrorClassifierEngine(dataset_dir)
+        self.classifier = Classifier(dataset_dir)
         self.executor = DockerExecutor(self.classifier, dry_run=dry_run)
 
     def run_guided_workflow(self):

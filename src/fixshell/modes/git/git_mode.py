@@ -5,7 +5,7 @@ import json
 import subprocess
 from .git_templates import GIT_MENU, GITIGNORE_CONTENT, CI_TEMPLATES
 from .git_validator import GitValidator
-from ...engine.error_classifier import ErrorClassifierEngine
+from ...engine.classifier import Classifier
 from ...engine.resolver_registry import (
     ResolverRegistry, handle_git_no_upstream, handle_git_no_tracking,
     handle_git_upstream_mismatch, handle_git_delete_current_branch,
@@ -21,7 +21,7 @@ class GitMode:
         # 1. Initialize Engine
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         dataset_dir = os.path.join(base_path, "dataset")
-        self.classifier = ErrorClassifierEngine(dataset_dir)
+        self.classifier = Classifier(dataset_dir)
         
         # 2. Setup Registries
         self.registry = ResolverRegistry()

@@ -3,7 +3,12 @@ import os
 from typing import Dict, Any, List, Optional
 from .rule_matcher import RuleMatcher
 
-class ErrorClassifierEngine:
+class ErrorCategory:
+    FATAL = "FATAL"
+    RECOVERABLE = "RECOVERABLE"
+    INFORMATIONAL = "INFORMATIONAL"
+
+class Classifier:
     """
     Modular error classification engine using deterministic datasets.
     """
@@ -17,7 +22,8 @@ class ErrorClassifierEngine:
         dataset_files = {
             "docker": "docker_errors.json",
             "git": "git_errors.json",
-            "github": "github_errors.json"
+            "github": "github_errors.json",
+            "linux": "linux_errors.json"
         }
         
         for key, filename in dataset_files.items():
