@@ -151,7 +151,7 @@ def handle_docker_not_installed(matches, dry_run: bool = False, state: Dict[str,
     distro_info = state.get("DISTRO_STATE", {})
     arch = state.get("ARCH_STATE", "amd64")
     
-    click.secho(f"\n🧩 FixShell Safe-Install Protocol: Docker Engine (v0.2.0)", fg="white", bold=True)
+    click.secho(f"\n🧩 FixShell Safe-Install Protocol: Docker Engine (v0.1.3)", fg="white", bold=True)
     click.echo(f"   Context: {os_name} {distro_info.get('id', '')} ({distro_info.get('codename', '')}) on {arch}")
     
     if os_name == "Linux":

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] – February 2026
+## [0.1.3] – February 2026
 
 ### Added
 - **Full Support**: Official Docker Engine support for Ubuntu Questing 25.10, Noble 24.04 LTS, and Jammy 22.04 LTS.

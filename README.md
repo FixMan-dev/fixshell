@@ -1,4 +1,4 @@
-# FixShell v0.2.0 - Deterministic DevOps Orchestration Engine
+# FixShell v0.1.3 - Deterministic DevOps Orchestration Engine
 
 FixShell is a secure, state-aware orchestration engine that transforms terminal failures into guided, self-healing workflows. In the 2026 edition, we prioritize **Security First** and **User Visibility**.
 
