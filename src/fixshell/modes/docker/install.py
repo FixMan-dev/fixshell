@@ -1,58 +1,66 @@
 
 from typing import List, Dict, Any
+import click
+import subprocess
+import os
 
-INSTALL_TEMPLATES = {
-    "ubuntu": {
-        "name": "Docker Engine (Ubuntu/Debian)",
-        "prerequisites": ["sudo access", "Internet connection"],
+SUPPORT_EMAIL = "📧 fixman.services24hrs@gmail.com"
+
+# 2026 Standards
+SUPPORTED_CODENAMES = ["jammy", "noble", "questing"]
+WIN10_MIN_BUILD = 19045
+WIN11_MIN_BUILD = 22631
+
+def get_ubuntu_installer(codename, arch):
+    """Generates the 2026-standard Ubuntu/Debian installer logic using deb822."""
+    is_supported = codename in SUPPORTED_CODENAMES
+    target_codename = codename if is_supported else "noble"
+    
+    steps = [
+        {"desc": "📁 Creating keyrings directory", "cmd": ["sudo", "install", "-m", "0755", "-d", "/etc/apt/keyrings"]},
+        {"desc": "🔑 Downloading Docker GPG key", "cmd": ["sudo", "curl", "-fsSL", f"https://download.docker.com/linux/ubuntu/gpg", "-o", "/etc/apt/keyrings/docker.asc"]},
+        {"desc": "🔓 Setting GPG permissions", "cmd": ["sudo", "chmod", "a+r", "/etc/apt/keyrings/docker.asc"]},
+        {
+            "desc": "📄 Configuring deb822 repository", 
+            "cmd": f"""sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: {target_codename}
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF"""
+        },
+        {"desc": "🔄 Updating package index", "cmd": ["sudo", "apt-get", "update"]},
+        {"desc": "🚀 Installing Docker Engine", "cmd": ["sudo", "apt-get", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"]},
+        {"desc": "🎉 Enabling Docker service", "cmd": ["sudo", "systemctl", "enable", "--now", "docker"]}
+    ]
+    return steps, is_supported
+
+def get_windows_guide(build, arch):
+    """Generates a guide for Windows with 2026 version checks."""
+    major_ver = 11 if int(build) >= 22000 else 10
+    min_build = WIN11_MIN_BUILD if major_ver == 11 else WIN10_MIN_BUILD
+    
+    is_supported = int(build) >= min_build
+    download_url = f"https://desktop.docker.com/win/main/{arch}/Docker%20Desktop%20Installer.exe"
+    
+    guide = {
+        "status": "✅ COMPATIBLE" if is_supported else "🚨 NOT FULLY SUPPORTED",
         "steps": [
-            {"desc": "Update apt index", "cmd": ["sudo", "apt-get", "update"]},
-            {"desc": "Install dependencies", "cmd": ["sudo", "apt-get", "install", "-y", "ca-certificates", "curl", "gnupg"]},
-            {"desc": "Add GPG key", "cmd": ["sudo", "install", "-m", "0755", "-d", "/etc/apt/keyrings"]},
-            {"desc": "Download key", "cmd": ["curl", "-fsSL", "https://download.docker.com/linux/ubuntu/gpg", "-o", "/etc/apt/keyrings/docker.asc"]},
-            {"desc": "Add Repo", "cmd": "echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu jammy stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"},
-            {"desc": "Install Docker", "cmd": "sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"},
-            {"desc": "Finalize", "cmd": ["sudo", "systemctl", "enable", "--now", "docker"]}
-        ]
-    },
-    "fedora": {
-        "name": "Docker Engine (Fedora)",
-        "steps": [
-            {"desc": "Remove old versions", "cmd": ["sudo", "dnf", "remove", "docker", "docker-client", "docker-client-latest", "docker-common", "docker-latest", "docker-latest-logrotate", "docker-logrotate", "docker-selinux", "docker-engine-selinux", "docker-engine"]},
-            {"desc": "Add repository", "cmd": ["sudo", "dnf", "-y", "install", "dnf-plugins-core"]},
-            {"desc": "Setup repo", "cmd": ["sudo", "dnf", "config-manager", "--add-repo", "https://download.docker.com/linux/fedora/docker-ce.repo"]},
-            {"desc": "Install Docker", "cmd": ["sudo", "dnf", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"]},
-            {"desc": "Start Docker", "cmd": ["sudo", "systemctl", "enable", "--now", "docker"]}
-        ]
-    },
-    "arch": {
-        "name": "Docker Engine (Arch Linux)",
-        "steps": [
-            {"desc": "Install Docker", "cmd": ["sudo", "pacman", "-S", "--noconfirm", "docker"]},
-            {"desc": "Start Docker", "cmd": ["sudo", "systemctl", "enable", "--now", "docker"]}
-        ]
-    },
-    "centos": {
-        "name": "Docker Engine (CentOS/RHEL)",
-        "steps": [
-            {"desc": "Install yum-utils", "cmd": ["sudo", "yum", "install", "-y", "yum-utils"]},
-            {"desc": "Add repo", "cmd": ["sudo", "yum-config-manager", "--add-repo", "https://download.docker.com/linux/centos/docker-ce.repo"]},
-            {"desc": "Install Docker", "cmd": ["sudo", "yum", "install", "-y", "docker-ce", "docker-ce-cli", "containerd.io", "docker-buildx-plugin", "docker-compose-plugin"]},
-            {"desc": "Start Docker", "cmd": ["sudo", "systemctl", "enable", "--now", "docker"]}
-        ]
-    },
-    "windows_wsl": {
-        "name": "Docker Desktop Integration (WSL)",
-        "steps": [
-            {"desc": "Informational", "cmd": ["echo", "Please install Docker Desktop for Windows first from: https://www.docker.com/products/docker-desktop"]},
-            {"desc": "Enable WSL Integration", "cmd": ["echo", "In Docker Desktop Settings -> Resources -> WSL Integration, enable for your distro."]}
-        ]
-    },
-    "fallback": {
-        "name": "Generic Docker Installation",
-        "steps": [
-            {"desc": "Install via official script", "cmd": ["curl", "-fsSL", "https://get.docker.com", "-o", "get-docker.sh"]},
-            {"desc": "Run install script", "cmd": ["sudo", "sh", "get-docker.sh"]}
-        ]
+            f"1. Download Docker Desktop ({arch}): {download_url}",
+            "2. Run the installer and ensure 'WSL 2' is checked.",
+            "3. Restart if prompted by Windows.",
+            "4. Open Docker Desktop and accept the service agreement.",
+            "5. Run 'docker version' in PowerShell to verify."
+        ],
+        "prerequisites": "Requires Windows Pro/Ent/Edu (WSL 2.1.5+ recommended)."
     }
-}
+    return guide, is_supported
+
+def get_generic_install():
+    """Generic fallback script using the official convenience script."""
+    return [
+        {"desc": "📥 Downloading official install script", "cmd": ["curl", "-fsSL", "https://get.docker.com", "-o", "get-docker.sh"]},
+        {"desc": "🛠️ Running standard installation", "cmd": ["sudo", "sh", "get-docker.sh"]},
+        {"desc": "📧 For help, contact", "cmd": ["echo", SUPPORT_EMAIL]}
+    ]

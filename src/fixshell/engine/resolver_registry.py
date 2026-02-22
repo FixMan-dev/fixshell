@@ -143,27 +143,56 @@ def handle_docker_daemon_service(matches, dry_run: bool = False, **kwargs) -> bo
     return False
 
 def handle_docker_not_installed(matches, dry_run: bool = False, state: Dict[str, Any] = None) -> bool:
-    from ..modes.docker.install import INSTALL_TEMPLATES
+    from ..modes.docker.install import get_ubuntu_installer, get_windows_guide, get_generic_install, SUPPORT_EMAIL
     
     os_name = state.get("OS_STATE", "Linux")
-    distro = state.get("DISTRO_STATE", "fallback")
+    distro_info = state.get("DISTRO_STATE", {})
+    arch = state.get("ARCH_STATE", "amd64")
     
-    click.secho(f"\n💊 Docker is not installed on {os_name} ({distro}).", fg="yellow", bold=True)
+    click.secho(f"\n🔍 Environment Check: {os_name} {distro_info.get('id', '')} on {arch}", fg="white")
     
-    template_key = distro if distro in INSTALL_TEMPLATES else "fallback"
-    if os_name == "Windows": template_key = "windows_wsl"
-    
-    template = INSTALL_TEMPLATES.get(template_key)
-    click.secho(f"   FixShell suggests: {template['name']}", fg="cyan")
-    
-    if click.confirm("   Would you like to proceed with the installation guide?", default=True):
-        for step in template["steps"]:
-            click.secho(f"\n   [GUIDE] {step['desc']}", fg="white", dim=True)
-            cmd = step["cmd"]
-            cmd_disp = " ".join(cmd) if isinstance(cmd, list) else cmd
-            click.secho(f"   $ {cmd_disp}", fg="bright_black")
-            if click.confirm("   Execute this step?", default=True):
-                if not dry_run:
-                    subprocess.run(cmd, shell=isinstance(cmd, str))
+    if os_name == "Linux":
+        distro_id = distro_info.get("id", "").lower()
+        codename = distro_info.get("codename", "noble").lower()
+        
+        if distro_id in ["ubuntu", "debian"]:
+            steps, supported = get_ubuntu_installer(codename, arch)
+            
+            if not supported:
+                click.secho(f"🚨 WARNING: {codename} is not officially supported by Docker in 2026.", fg="yellow", bold=True)
+                if not click.confirm(f"   Fallback to 'noble' (Ubuntu 24.04 LTS) template?", default=True):
+                    click.echo(f"💡 Please contact {SUPPORT_EMAIL} for manual setup.")
+                    return False
+            
+            click.secho(f"✅ Ready to install via 2026-standard deb822 repository.", fg="green")
+            if click.confirm("   Start installation now?", default=True):
+                for step in steps:
+                    click.secho(f"\n   [GUIDE] {step['desc']}", fg="white", dim=True)
+                    cmd = step["cmd"]
+                    cmd_disp = " ".join(cmd) if isinstance(cmd, list) else cmd
+                    click.secho(f"   $ {cmd_disp}", fg="bright_black")
+                    if click.confirm("   Execute?", default=True):
+                        if not dry_run:
+                            subprocess.run(cmd, shell=isinstance(cmd, str))
+                return True
+
+        else:
+            # Fallback to generic Linux
+            click.echo("💡 For other distros, FixShell uses the offical convenience script.")
+            if click.confirm("   Proceed?", default=True):
+                for step in get_generic_install():
+                    subprocess.run(step["cmd"])
+                return True
+
+    elif os_name == "Windows":
+        guide, supported = get_windows_guide(distro_info.get("build", "0"), arch)
+        click.secho(f"\n🖥️  Windows Support Status: {guide['status']}", fg="cyan", bold=True)
+        click.echo(guide["prerequisites"])
+        click.echo("-" * 50)
+        for s in guide["steps"]:
+            click.echo(s)
+        click.echo("-" * 50)
+        click.secho(f"📧 Support: {SUPPORT_EMAIL}", fg="white", dim=True)
         return True
+
     return False
