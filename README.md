@@ -29,3 +29,4 @@ pip install fixshell
 ---
 Maintainer: **FIXMAN_404** (Thilak Divyadharshan)
 License: **MIT**
+# 25KIDS633-terminal-integrated-ai
